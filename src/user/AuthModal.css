@@ -1,0 +1,126 @@
+/* Modal overlay with background blur */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Dark overlay */
+    backdrop-filter: blur(8px); /* Apply blur effect */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+  }
+  
+  /* Modal box */
+  .modal-box {
+    background-color: white;
+    padding: 40px 30px;
+    width: 350px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    animation: slide-in 0.3s ease;
+  }
+  
+  @keyframes slide-in {
+    from {
+      transform: translateY(-50px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .modal-box h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  /* Form Styling */
+  .modal-box form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-box input {
+    margin: 10px 0;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.3s;
+  }
+  
+  .modal-box input:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .modal-box button {
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  .modal-box button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Close button */
+  .modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: #888;
+    transition: color 0.3s;
+  }
+  
+  .modal-close:hover {
+    color: #333;
+  }
+  
+  /* Toggle between signup/login text */
+  .auth-toggle {
+    margin-top: 20px;
+    color: #666;
+  }
+  
+  .auth-toggle p {
+    font-size: 0.9rem;
+  }
+  
+  .auth-toggle span {
+    color: #007bff;
+    cursor: pointer;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  
+  .auth-toggle span:hover {
+    color: #0056b3;
+  }
+  
+  /* Error message */
+  .error {
+    color: red;
+    margin-top: 10px;
+    font-size: 0.9rem;
+  }
+  
