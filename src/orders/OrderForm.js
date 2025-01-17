@@ -6,7 +6,7 @@ import ProductDetailsHeader from '../products/detail/ProductDetailsHeader';
 
 const OrderForm = () => {
   const location = useLocation();
-  const cart = location.state?.cart || []; 
+  const cart = location.state?.cart || [];  // Ensure cart data exists
   const cartTotal = location.state?.cartTotal || 0;
 
   const [deliveryDetails, setDeliveryDetails] = useState({
@@ -17,22 +17,37 @@ const OrderForm = () => {
   });
   const [isLoading, setIsLoading] = useState(false);
 
+  // Handle input changes for delivery details
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setDeliveryDetails({ ...deliveryDetails, [name]: value });
   };
 
+  // Log the cart data before sending it
+  console.log("Cart data: ", cart);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    // Ensure each cart item has a variant_id
+    const preparedCart = cart.map(item => ({
+      variant_id: item.id,
+      quantity: item.quantity || 1,
+      size: item.size || "Default Size",  // Ensure size is handled properly here
+      edition: item.edition || "Standard",  // Handle edition if missing
+    }));
+    
+    
+
     try {
       const response = await fetch('http://127.0.0.1:5000/orders', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cart,
+          cart: preparedCart,  // Send properly formatted cart
           delivery_details: deliveryDetails,
           total_price: cartTotal,
         })
@@ -67,59 +82,65 @@ const OrderForm = () => {
 
   return (
     <>
-    <div style={{ backgroundColor: '#ffecd1', minHeight: '100vh' }}>
-    <ProductDetailsHeader />
-    <form onSubmit={handleSubmit} className="form-container">
-      <h2 className="heading">Delivery Details</h2>
-      <div className="form-group">
-        <label className="label">Name:</label>
-        <input
-          type="text"
-          name="name"
-          value={deliveryDetails.name}
-          onChange={handleInputChange}
-          required
-          className="input"
-        />
+      <div style={{ backgroundColor: '#ffecd1', minHeight: '100vh' }}>
+        <ProductDetailsHeader />
+        <form onSubmit={handleSubmit} className="form-container">
+          <h2 className="heading">Delivery Details</h2>
+          
+          {/* Delivery Details Form */}
+          <div className="form-group">
+            <label className="label">Name:</label>
+            <input
+              type="text"
+              name="name"
+              value={deliveryDetails.name}
+              onChange={handleInputChange}
+              required
+              className="input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="label">Email:</label>
+            <input
+              type="email"
+              name="email"
+              placeholder="(optional)"
+              value={deliveryDetails.email}
+              onChange={handleInputChange}
+              className="input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="label">Phone:</label>
+            <input
+              type="text"
+              name="phone"
+              value={deliveryDetails.phone}
+              onChange={handleInputChange}
+              required
+              className="input"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="label">Delivery Location:</label>
+            <input
+              type="text"
+              name="location"
+              value={deliveryDetails.location}
+              onChange={handleInputChange}
+              required
+              className="input"
+            />
+          </div>
+
+          <button type="submit" className="submit-button" disabled={isLoading}>
+            {isLoading ? 'Placing Order...' : 'Place Order'}
+          </button>
+        </form>
       </div>
-      <div className="form-group">
-        <label className="label">Email:</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="(optional)"
-          value={deliveryDetails.email}
-          onChange={handleInputChange}
-          className="input"
-        />
-      </div>
-      <div className="form-group">
-        <label className="label">Phone:</label>
-        <input
-          type="text"
-          name="phone"
-          value={deliveryDetails.phone}
-          onChange={handleInputChange}
-          required
-          className="input"
-        />
-      </div>
-      <div className="form-group">
-        <label className="label">Delivery Location:</label>
-        <input
-          type="text"
-          name="location"
-          value={deliveryDetails.location}
-          onChange={handleInputChange}
-          required
-          className="input"
-        />
-      </div>
-      <button type="submit" className="submit-button" disabled={isLoading}>
-        {isLoading ? 'Placing Order...' : 'Place Order'}
-      </button>
-    </form>
-    </div>
     </>
   );
 };

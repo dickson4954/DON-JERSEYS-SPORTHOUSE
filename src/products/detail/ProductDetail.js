@@ -155,34 +155,31 @@ function ProductDetail() {
   </div>
 </div>
 
-{/* Separate Section for Size Selection */}
+{/* Size Selection Section */}
 <div className="size-selection mt-4">
   <h5
     className={clsx('required-label', {
       'warning-text': !selectedSize && showWarning,
     })}
   >
-    * Select Size (adult)
+    * Select Jersey Size
   </h5>
-  {Array.isArray(product.sizes) && product.sizes.length > 0 ? (
-    <div className="size-box-container">
-      {product.sizes.map((size) => (
-        <div
-          key={size}
-          className={clsx('size-box', {
-            selected: selectedSize === size,
-            'warning-border': !selectedSize && showWarning && selectedSize === null,
-          })}
-          onClick={() => setSelectedSize(size)}
-        >
-          {size}
-        </div>
-      ))}
-    </div>
-  ) : (
-    <p>No sizes available.</p>
-  )}
+  <div className="size-box-container">
+    {/* Static size options */}
+    {['S', 'M', 'L', 'XL', '2XL','3XL'].map((size) => (
+      <div
+        key={size}
+        className={clsx('size-box', {
+          selected: selectedSize === size,
+        })}
+        onClick={() => setSelectedSize(size)}
+      >
+        {size}
+      </div>
+    ))}
+  </div>
 </div>
+
 
 
 </div>
