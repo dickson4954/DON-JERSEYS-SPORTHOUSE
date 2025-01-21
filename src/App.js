@@ -11,6 +11,7 @@ import ProductDetailsHeader from './products/detail/ProductDetailsHeader';
 import OrderForm from './orders/OrderForm'; 
 import { CartProvider } from './CartContext'; 
 import Cart from './orders/Cart';
+import PaymentPage from './orders/paymentpage';
 
 function App() {
   return (
@@ -57,6 +58,10 @@ function App() {
         <Route 
           path="/order-form" 
           element={<OrderForm />} 
+        />
+         <Route 
+          path="order-payment" 
+          element={<PaymentPage/>} 
         />
         <Route 
           path="*" 

@@ -33,7 +33,7 @@ function Cart() {
       alert("Your cart is empty. Add items before proceeding.");
       return;
     }
-    navigate("/order-form", { state: { cart, cartTotal } });
+    navigate("/order-payment", { state: { cart, cartTotal } });
   }
 
   return (
