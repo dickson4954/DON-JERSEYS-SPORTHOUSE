@@ -18,14 +18,23 @@ const MultiStepForm = () => {
   const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
 
+  // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/categories');
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
-        setCategories(data);
+        console.log('Fetched Categories:', data); // Debugging the response
+        if (Array.isArray(data)) {
+          setCategories(data); // Ensure it's an array of objects
+        } else {
+          console.error('Unexpected data format:', data);
+          setCategories([]);
+        }
       } catch (error) {
         console.error('Error fetching categories:', error);
+        setCategories([]); // Ensure the dropdown is not stuck
       }
     };
     fetchCategories();
@@ -219,9 +228,13 @@ const MultiStepForm = () => {
           <h2>Step 3: Category and Image</h2>
           <select name="category_id" value={formData.category_id} onChange={handleChange}>
             <option value="">Select Category</option>
-            {categories.map(category => (
-              <option key={category.id} value={category.id}>{category.name}</option>
-            ))}
+            {categories.length > 0 ? (
+              categories.map((category) => (
+                <option key={category.id} value={category.id}>{category.name}</option>
+              ))
+            ) : (
+              <option disabled>Loading categories...</option>
+            )}
           </select>
           {errors.category_id && <p className="error">{errors.category_id}</p>}
           <input type="file" onChange={handleImageChange} />
