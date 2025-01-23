@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaEye } from 'react-icons/fa';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Correctly import FontAwesomeIcon
-import { faSearch } from '@fortawesome/free-solid-svg-icons'; // Import the search icon
+import { FaEye } from "react-icons/fa";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import ScrollToTopOnMount from "../template/ScrollToTopOnMount";
 import ProductDetailsHeader from "./detail/ProductDetailsHeader";
-import './Productlist.css';
+import "./Productlist.css";
 
 function FilterMenuLeft({ categories, selectedCategory, setSelectedCategory }) {
   return (
@@ -38,15 +38,20 @@ function ProductList() {
   const [selectedCategory, setSelectedCategory] = useState("All Products");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Fetch categories
   useEffect(() => {
     fetch("http://127.0.0.1:5000/categories")
       .then((response) => response.json())
       .then((data) => {
-        setCategories(["All Products", ...data.map((category) => category.name)]);
+        setCategories([
+          "All Products",
+          ...data.map((category) => category.category_name), // Match backend key
+        ]);
       })
       .catch((error) => console.error("Error fetching categories:", error));
   }, []);
 
+  // Fetch products
   useEffect(() => {
     fetch("http://127.0.0.1:5000/products")
       .then((response) => response.json())
@@ -57,17 +62,19 @@ function ProductList() {
       .catch((error) => console.error("Error fetching products:", error));
   }, []);
 
+  // Filter products by category
   useEffect(() => {
     if (selectedCategory === "All Products") {
       setFilteredProducts(products);
     } else {
-      const filtered = products.filter((product) =>
-        product.category === selectedCategory
+      const filtered = products.filter(
+        (product) => product.category === selectedCategory
       );
       setFilteredProducts(filtered);
     }
   }, [selectedCategory, products]);
 
+  // Search products
   useEffect(() => {
     if (searchTerm) {
       const filtered = products.filter((product) =>
@@ -75,8 +82,8 @@ function ProductList() {
       );
       setFilteredProducts(filtered);
     } else if (selectedCategory !== "All Products") {
-      const filtered = products.filter((product) =>
-        product.category === selectedCategory
+      const filtered = products.filter(
+        (product) => product.category === selectedCategory
       );
       setFilteredProducts(filtered);
     } else {
@@ -125,7 +132,7 @@ function ProductList() {
                         onChange={(e) => setSearchTerm(e.target.value)}
                       />
                       <button className="btn btn-outline-dark">
-                        <FontAwesomeIcon icon={faSearch} /> {/* Corrected search icon */}
+                        <FontAwesomeIcon icon={faSearch} />
                       </button>
                     </div>
                     <button
@@ -133,7 +140,7 @@ function ProductList() {
                       onClick={changeViewType}
                     >
                       <FontAwesomeIcon
-                        icon={viewType.grid ? "th-list" : "th-large"} // Switch icon depending on the view type
+                        icon={viewType.grid ? "th-list" : "th-large"}
                       />
                     </button>
                   </div>
@@ -150,14 +157,17 @@ function ProductList() {
                     filteredProducts.map((product) => (
                       <div key={product.id} className="col">
                         <div className="card product-card shadow-sm hover-effect">
-                          <Link to={`/products/${product.id}`} state={{ 
-                            id: product.id,
-                            name: product.name,
-                            image: product.image_url,
-                            price: product.price,
-                            description: product.description,
-                            team: product.team 
-                          }}>
+                          <Link
+                            to={`/products/${product.id}`}
+                            state={{
+                              id: product.id,
+                              name: product.name,
+                              image: product.image_url,
+                              price: product.price,
+                              description: product.description,
+                              team: product.team,
+                            }}
+                          >
                             <img
                               className="card-img-top product-image"
                               alt={product.name}
@@ -181,7 +191,8 @@ function ProductList() {
                                 className="view-details-link"
                                 replace
                               >
-                                <FaEye className="view-details-icon" /> View Details
+                                <FaEye className="view-details-icon" /> View
+                                Details
                               </Link>
                             </div>
                           </div>
