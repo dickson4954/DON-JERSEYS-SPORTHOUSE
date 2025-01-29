@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Cart.css';
 import ProductDetailsHeader from '../products/detail/ProductDetailsHeader';
-import { Modal, Button, Form } from 'react-bootstrap';
+import { Modal, Button, Form, InputGroup } from 'react-bootstrap';
+import { FaUser, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
 
 function Cart() {
   const { cart, removeFromCart, updateQuantity } = useContext(CartContext);
@@ -152,43 +153,44 @@ function Cart() {
         </div>
       </div>
 
-      {/* Order Details Modal */}
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Order Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div>
-            {cart.map((item, index) => (
-              <div key={index} className="order-item d-flex align-items-center">
-                <img
-                  src={item.image_url}
-                  alt={item.name}
-                  className="order-item-image me-3"
-                  style={{ width: '50px', height: '50px' }}
-                />
-                <div>
-                  <p>
-                    <strong>{item.name}</strong> x {item.quantity}
-                  </p>
-                  <p>
-                    Total: KES{' '}
-                    {(
-                      item.quantity *
-                      (item.price + calculateCustomizationCharge(item))
-                    ).toFixed(2)}
-                  </p>
-                </div>
+      <Modal.Header closeButton>
+        <Modal.Title>Order Details</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div>
+          {cart.map((item, index) => (
+            <div key={index} className="order-item d-flex align-items-center mb-3">
+              <img
+                src={item.image_url}
+                alt={item.name}
+                className="order-item-image me-3 rounded"
+                style={{ width: '60px', height: '60px' }}
+              />
+              <div>
+                <p className="mb-1">
+                  <strong>{item.name}</strong> x {item.quantity}
+                </p>
+                <p className="mb-0 text-muted">
+                  Total: KES{' '}
+                  {(
+                    item.quantity *
+                    (item.price + calculateCustomizationCharge(item))
+                  ).toFixed(2)}
+                </p>
               </div>
-            ))}
-            <hr />
-            <p>
-              <strong>Total:</strong> KES {cartTotal.toFixed(2)}
-            </p>
-          </div>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
+            </div>
+          ))}
+          <hr />
+          <p className="text-end fw-bold">
+            Total: KES {cartTotal.toFixed(2)}
+          </p>
+        </div>
+        <Form>
+          <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
+            <h6 className="m-2 ">Name*</h6>
+            <InputGroup className="ms-auto">
+              <InputGroup.Text><FaUser /></InputGroup.Text>
               <Form.Control
                 type="text"
                 name="name"
@@ -196,9 +198,12 @@ function Cart() {
                 onChange={handleInputChange}
                 placeholder="Enter your name"
               />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Phone Number</Form.Label>
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
+            <h6 className="m-2 ">Phone*</h6>
+            <InputGroup className="ms-auto">
+              <InputGroup.Text><FaPhone /></InputGroup.Text>
               <Form.Control
                 type="text"
                 name="phone"
@@ -206,9 +211,12 @@ function Cart() {
                 onChange={handleInputChange}
                 placeholder="Enter your phone number"
               />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Location</Form.Label>
+            </InputGroup>
+          </Form.Group>
+          <Form.Group className="mb-3 d-flex justify-content-between align-items-center">
+            <h6 className="m-2">Location*</h6>
+            <InputGroup className="ms-auto">
+              <InputGroup.Text><FaMapMarkerAlt /></InputGroup.Text>
               <Form.Control
                 type="text"
                 name="location"
@@ -216,18 +224,20 @@ function Cart() {
                 onChange={handleInputChange}
                 placeholder="Enter your location"
               />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handlePaymentOnDelivery}>
-            Payment on Delivery
-          </Button>
-          <Button variant="primary" onClick={handlePayNow}>
-            Pay Now and Get 10% Discount
-          </Button>
-        </Modal.Footer>
-      </Modal>
+            </InputGroup>
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer className="d-flex justify-content-between">
+        <Button variant="dark" className="w-100 me-2" onClick={handlePaymentOnDelivery}>
+          Payment on Delivery
+        </Button>
+        <Button variant="primary" className="w-100" onClick={handlePayNow}>
+          Pay Now and Get 10% Discount
+        </Button>
+      </Modal.Footer>
+    </Modal>
+      
     </>
   );
 }

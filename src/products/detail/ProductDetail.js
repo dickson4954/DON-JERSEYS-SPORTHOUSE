@@ -4,6 +4,7 @@ import CartContext from '../../CartContext';
 import './ProductDetails.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
+
 import clsx from 'clsx';
 
 function ProductDetail() {
