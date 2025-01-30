@@ -12,6 +12,7 @@ import OrderForm from './orders/OrderForm';
 import { CartProvider } from './CartContext'; 
 import Cart from './orders/Cart';
 import PaymentPage from './orders/paymentpage';
+import ShippingPage from './orders/ShippingPage';
 
 function App() {
   return (
@@ -64,8 +65,8 @@ function App() {
           element={<PaymentPage/>} 
         />
         <Route 
-          path="*" 
-          element={<h1>An Error occurred</h1>} 
+          path="/shipping-page" 
+          element={<ShippingPage/>} 
         />
          <Route path="/cart" element={<Cart />} />
       </Routes>

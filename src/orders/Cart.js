@@ -6,7 +6,7 @@ import './Cart.css';
 import ProductDetailsHeader from '../products/detail/ProductDetailsHeader';
 import { Modal, Button, Form, InputGroup } from 'react-bootstrap';
 import { FaUser, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
-
+import { Link } from 'react-router-dom';
 function Cart() {
   const { cart, removeFromCart, updateQuantity } = useContext(CartContext);
   const navigate = useNavigate();
@@ -228,13 +228,17 @@ function Cart() {
           </Form.Group>
         </Form>
       </Modal.Body>
+      
       <Modal.Footer className="d-flex justify-content-between">
-        <Button variant="dark" className="w-100 me-2" onClick={handlePaymentOnDelivery}>
+      <Link to={"/shipping-page"}>
+        <Button variant="dark" className="w-100 me-2 m-1 h-20" onClick={handlePaymentOnDelivery}>
           Payment on Delivery
         </Button>
-        <Button variant="primary" className="w-100" onClick={handlePayNow}>
+        <Button variant="primary" className="w-100 m-1 h-20" onClick={handlePayNow}>
           Pay Now and Get 10% Discount
         </Button>
+        </Link>
+
       </Modal.Footer>
     </Modal>
       
