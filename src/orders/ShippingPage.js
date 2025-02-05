@@ -5,6 +5,7 @@ import PaymentPage from "./paymentpage";
 import ProductDetailsHeader from "../products/detail/ProductDetailsHeader";
 import { useLocation } from "react-router-dom";
 
+
 export default function ShippingPage() {
   const navigate = useNavigate();
   const { cart } = useContext(CartContext); // Fetching cart from CartContext
@@ -150,9 +151,12 @@ export default function ShippingPage() {
   };
 
   return (
+    
     <>
+    
       <ProductDetailsHeader />
-      <div className="container mt-5 p-4" style={{ backgroundColor: "#f8f9fa", minHeight: "100vh" }}>
+      
+      <div className="container mt-5 p-4" style={{ backgroundColor: "#ffecd1", minHeight: "100vh" }}>
         <div className="row">
           {/* Shipping Address and Shipping Region Section (Left side) */}
           <div className="col-md-6">

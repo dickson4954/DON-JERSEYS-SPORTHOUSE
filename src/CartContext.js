@@ -43,13 +43,14 @@ export const CartProvider = ({ children }) => {
     setCart((prevCart) => prevCart.filter(item => item.id !== productId));
   };
 
-  const updateQuantity = (productId, quantity, size) => {
-    setCart((prevCart) =>
-      prevCart.map(item =>
-        item.id === productId ? { ...item, quantity, size } : item
-      )
+  const updateQuantity = (id, newQuantity) => {
+    setCart(cart => 
+      cart.map(item => 
+        item.id === id ? { ...item, quantity: Math.max(0, newQuantity) } : item
+      ).filter(item => item.quantity > 0) // Removes items with 0 quantity
     );
   };
+  
 
   return (
     <CartContext.Provider value={{ cart, cartCount, setCart, addToCart, removeFromCart, updateQuantity }}>

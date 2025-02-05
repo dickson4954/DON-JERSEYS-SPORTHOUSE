@@ -13,7 +13,6 @@ function ProductDetailsHeader() {
   const [openedDrawer, setOpenedDrawer] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
-  
 
   const location = useLocation(); 
   const navigate = useNavigate();
@@ -37,7 +36,6 @@ function ProductDetailsHeader() {
     }
   }, [location]);
 
-
   function navigateToCart() {
     navigate("/cart");
   }
@@ -52,17 +50,18 @@ function ProductDetailsHeader() {
       // console.log(`Updated quantity for product ${productId} to ${newQuantity}`);
     }
   }
-
   function handleBackClick() {
-    if (previousPath) {
+    if (location.pathname === "/shipping-page") {
+      navigate("/cart");
+    } else if (location.pathname === "/cart") {
+      navigate("/");
+    } else if (previousPath) {
       navigate(previousPath);
-      console.log(`Navigated back to ${previousPath}`);
     } else {
       navigate("/");
-      console.log("Navigated back to home.");
     }
   }
-
+  
   function handleOrderClick() {
     // Check if all cart items have a size selected
     const allSizesSelected = cart.every(item => item.size && item.size.trim() !== "");
@@ -99,34 +98,46 @@ function ProductDetailsHeader() {
 
   return (
     <header>
-      <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
-        <div className="container-fluid">
-          <Link className="navbar-brand" to="/">
-            <FontAwesomeIcon icon={["fab", "bootstrap"]} className="ms-1" size="lg" />
-            <span className="ms-2 h5">Don Jerseys</span>
-          </Link>
+    <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
+      <div className="container-fluid">
+        <Link className="navbar-brand" to="/">
+          <FontAwesomeIcon icon={["fab", "bootstrap"]} className="ms-1" size="lg" />
+          <span className="ms-2 h5">Don Jerseys</span>
+        </Link>
 
-          <div className="ms-auto">
-            {showBackButton && (
-              <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
-                <FontAwesomeIcon icon={['fas', 'arrow-left']} />
-                Back
-              </button>
-            )}
-
-            <button
-              type="button"
-              className="btn btn-outline-dark"
-              onClick={navigateToCart}
-            >
-              <FontAwesomeIcon icon={["fas", "shopping-cart"]} />
-              <span className="ms-3 badge rounded-pill bg-dark">
-                {cart.length || 0}
-              </span>
+        <div className="ms-auto">
+          {/* Always show the back button on the ShippingPage */}
+          {location.pathname === "/shipping-page" ? (
+            <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
+              <FontAwesomeIcon icon={['fas', 'arrow-left']} />
+              Back
             </button>
-          </div>
+          ) : (
+            <>
+              {showBackButton && (
+                <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
+                  <FontAwesomeIcon icon={['fas', 'arrow-left']} />
+                  Back
+                </button>
+              )}
+
+              {/* Show the cart button only when NOT on the shipping page */}
+              <button
+                type="button"
+                className="btn btn-outline-dark"
+                onClick={() => navigate("/cart")}
+              >
+                <FontAwesomeIcon icon={["fas", "shopping-cart"]} />
+                <span className="ms-3 badge rounded-pill bg-dark">
+                  {cart.length || 0}
+                </span>
+              </button>
+            </>
+          )}
         </div>
-      </nav>
+      </div>
+    </nav>
+
 
       {/* <Modal show={showCart} onHide={toggleCart}>
         <Modal.Header closeButton>
