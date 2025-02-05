@@ -170,12 +170,42 @@
 /* Warning border for required selection */
 .option-box.warning-border {
   border-color: red; /* Red border */
+}/* Edition selection section */
+.edition-selection {
+  display: flex;
+  gap: 10px; /* Space between edition boxes */
+  flex-wrap: wrap;
 }
 
+.edition-box {
+  padding: 10px 20px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: #fff;
+  text-align: center;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+  min-width: 120px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.edition-box.selected {
+  background-color: #008C95;
+  color: #fff;
+  border-color: #008C95;
+}
 
-.edition-options,
-/* Container for all size options */
+.edition-box:hover {
+  background-color: #f0f0f0;
+}
+
+.warning-border {
+  border-color: red;
+}
+
 .size-box-container {
   display: flex;
   flex-wrap: wrap; /* Ensure sizes wrap to the next line if needed */
@@ -183,38 +213,29 @@
   margin-top: 10px;
 }
 
-/* Individual size box */
+.size-box-container {
+  display: flex;
+  gap: 10px; /* Adds spacing between each box */
+}
+
 .size-box {
-  display: inline-block; /* Ensure each box is separate */
-  padding: 10px 20px; /* Add space inside the box */
-  border: 2px solid #ddd; /* Default border */
-  border-radius: 5px; /* Rounded corners */
-  background-color: #f9f9f9; /* Light gray background */
-  text-align: center; /* Center the text */
-  cursor: pointer; /* Show pointer cursor */
-  transition: all 0.3s ease; /* Smooth transition effects */
-  font-size: 16px; /* Font size */
-  font-weight: bold; /* Bold text */
-  min-width: 70px; /* Ensure uniform size */
+  padding: 10px 15px;
+  border: 2px solid #000;
+  cursor: pointer;
+  text-align: center;
+  min-width: 50px;
+  font-weight: bold;
+  background: #fff;
 }
-
-/* Hover effect for boxes */
-.size-box:hover {
-  border-color: #007bff; /* Blue border on hover */
-  background-color: #e7f3ff; /* Light blue background on hover */
-}
-
-/* Selected box styling */
 .size-box.selected {
-  border-color: #007bff; /* Blue border for selected */
-  background-color: #007bff; /* Blue background */
-  color: white; /* White text for selected */
+  background-color: #008C95; /* Highlight color */
+  color: white;
+  border: 1px solid #005f6b; /* Darker border for selected size */
+}
+.size-box:hover {
+  background: #ddd;
 }
 
-/* Warning border styling */
-.size-box.warning-border {
-  border-color: red; /* Red border for warning */
-}
 
 
 .btn-primary, .btn-dark {

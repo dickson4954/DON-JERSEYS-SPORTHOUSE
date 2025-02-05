@@ -77,7 +77,9 @@ function PaymentPage() {
   };
 
   return (
+    
     <div className="payment-page">
+      
       <h1>Payment Page</h1>
       <form onSubmit={handlePayment} className="payment-form">
         <input

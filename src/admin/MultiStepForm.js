@@ -5,15 +5,15 @@ import './MultiStepForm.css';
 const MultiStepForm = () => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
+    productType: '',  // 'shoe' or 'jersey'
     name: '',
     description: '',
     price: '',
     category_id: '',
-    variants: [
-      { size: '', edition: '', stock: 0 }
-    ], // Initialize with one variant
+    variants: [{ size: '', edition: '', stock: 0 }],
     imageUrl: ''
   });
+
   const [imageFile, setImageFile] = useState(null);
   const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
@@ -26,15 +26,22 @@ const MultiStepForm = () => {
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         console.log('Fetched Categories:', data); // Debugging the response
+
         if (Array.isArray(data)) {
-          setCategories(data); // Ensure it's an array of objects
+          // Map the response to match expected keys in the dropdown
+          const formattedCategories = data.map(cat => ({
+            id: cat.category_id,   // Ensure "id" is set correctly
+            name: cat.category_name // Ensure "name" is set correctly
+          }));
+
+          setCategories(formattedCategories);
         } else {
           console.error('Unexpected data format:', data);
           setCategories([]);
         }
       } catch (error) {
         console.error('Error fetching categories:', error);
-        setCategories([]); // Ensure the dropdown is not stuck
+        setCategories([]);
       }
     };
     fetchCategories();
@@ -48,12 +55,8 @@ const MultiStepForm = () => {
 
   const handleVariantChange = (index, e) => {
     const { name, value } = e.target;
-    const updatedVariants = formData.variants.map((variant, i) => {
-      if (i === index) {
-        return { ...variant, [name]: value };
-      }
-      return variant;
-    });
+    const updatedVariants = [...formData.variants];
+    updatedVariants[index] = { ...updatedVariants[index], [name]: value };
     setFormData((prev) => ({ ...prev, variants: updatedVariants }));
     setErrors((prev) => ({ ...prev, variants: '' }));
   };
@@ -77,30 +80,30 @@ const MultiStepForm = () => {
 
   const validateStep = () => {
     const newErrors = {};
+  
+    // Product Details (Step 1)
     if (step === 1) {
       if (!formData.name) newErrors.name = 'Product name is required';
       if (!formData.description) newErrors.description = 'Product description is required';
       if (formData.variants.length === 0) newErrors.variants = 'At least one variant is required';
+  
       formData.variants.forEach((variant, index) => {
         if (!variant.size) {
           newErrors[`variants.${index}.size`] = 'Size is required';
         }
-        if (!variant.edition) {
-          newErrors[`variants.${index}.edition`] = 'Edition is required';
-        }
+  
+        // Edition is optional at this stage for both shoes and jerseys
+        // Just check if stock and size are valid
         if (variant.stock === '' || variant.stock < 0) {
           newErrors[`variants.${index}.stock`] = 'Stock must be a non-negative number';
         }
       });
-    } else if (step === 2) {
-      if (!formData.price || formData.price <= 0) newErrors.price = 'Price must be a positive number';
-    } else if (step === 3) {
-      if (!formData.category_id) newErrors.category_id = 'Category is required';
-      if (!imageFile && !formData.imageUrl) newErrors.imageUrl = 'Product image is required';
     }
-    setErrors(newErrors);
+  
+    // Other steps...
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const nextStep = () => {
     if (validateStep()) setStep((prevStep) => prevStep + 1);
@@ -114,15 +117,20 @@ const MultiStepForm = () => {
     let imageUrl = formData.imageUrl;
     if (imageFile) {
       const imageData = new FormData();
-      imageData.append('file', imageFile);
+      imageData.append('file', imageFile);  // Ensure the field name is 'file'
 
       try {
-        const response = await fetch('http://127.0.0.1:5000/upload', { method: 'POST', body: imageData });
+        const response = await fetch('http://localhost:5000/upload', {
+          method: 'POST',
+          body: imageData,
+        });
+
         const uploadResult = await response.json();
 
         if (response.ok && uploadResult.image_url) {
           imageUrl = uploadResult.image_url;
         } else {
+          console.error("Upload result:", uploadResult);  // Log the result for debugging
           Swal.fire({ icon: 'error', title: 'Image Upload Failed', text: 'Please try uploading the image again.' });
           return;
         }
@@ -138,7 +146,7 @@ const MultiStepForm = () => {
       name: formData.name,
       description: formData.description,
       price: parseFloat(formData.price),
-      category_id: formData.category_id,
+      category_id: parseInt(formData.category_id, 10), // Ensure category_id is a number
       variants: formData.variants.map(variant => ({
         size: variant.size,
         edition: variant.edition,
@@ -166,6 +174,56 @@ const MultiStepForm = () => {
       console.error('Product submission error:', error);
       Swal.fire({ icon: 'error', title: 'Submission Error', text: 'An error occurred while submitting the product. Please try again later.' });
     }
+  };
+
+  const renderVariantSection = () => {
+    if (formData.productType === 'shoe') {
+      return (
+        <div className="shoe-variants">
+          <h3>Select Shoe Sizes</h3>
+          <div className="shoe-sizes">
+            {[...Array(9).keys()].map(i => {
+              const size = 32 + i; // Size from 32 to 40
+              return (
+                <div key={size} className="shoe-size">
+                  <label>
+                    <input
+                      type="checkbox"
+                      name="size"
+                      value={size}
+                      onChange={(e) => handleVariantChange(0, e)} // Update the size of the first variant
+                    />
+                    {size}
+                  </label>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      );
+    } else if (formData.productType === 'jersey') {
+      return (
+        <div className="jersey-variants">
+          <h3>Select Sizes</h3>
+          <div className="jersey-sizes">
+            {['S', 'M', 'L', 'XL'].map((size) => (
+              <div key={size} className="jersey-size">
+                <label>
+                  <input
+                    type="checkbox"
+                    name="size"
+                    value={size}
+                    onChange={(e) => handleVariantChange(0, e)} // Update the size of the first variant
+                  />
+                  {size}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -211,6 +269,7 @@ const MultiStepForm = () => {
           ))}
           <button type="button" onClick={addVariant}>Add Another Variant</button>
           {errors.variants && <p className="error">{errors.variants}</p>}
+          {renderVariantSection()}
           <button onClick={nextStep}>Next</button>
         </div>
       )}
@@ -236,6 +295,7 @@ const MultiStepForm = () => {
               <option disabled>Loading categories...</option>
             )}
           </select>
+
           {errors.category_id && <p className="error">{errors.category_id}</p>}
           <input type="file" onChange={handleImageChange} />
           {errors.imageUrl && <p className="error">{errors.imageUrl}</p>}

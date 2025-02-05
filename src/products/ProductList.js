@@ -56,11 +56,13 @@ function ProductList() {
     fetch("http://127.0.0.1:5000/products")
       .then((response) => response.json())
       .then((data) => {
+        console.log("Fetched Products:", data);  // Debugging step
         setProducts(data);
         setFilteredProducts(data);
       })
       .catch((error) => console.error("Error fetching products:", error));
   }, []);
+  
 
   // Filter products by category
   useEffect(() => {
@@ -68,7 +70,9 @@ function ProductList() {
       setFilteredProducts(products);
     } else {
       const filtered = products.filter(
-        (product) => product.category === selectedCategory
+        (product) => product.category.name === selectedCategory
+    
+      
       );
       setFilteredProducts(filtered);
     }

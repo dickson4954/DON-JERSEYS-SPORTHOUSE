@@ -43,6 +43,7 @@ const AdminDashboard = () => {
       setCategoryCounts(response.data || []); // Fallback to an empty array
     } catch (error) {
       console.error('Error fetching category counts:', error);
+      setError('Failed to load categories.');
     }
   };
 
@@ -126,7 +127,7 @@ const AdminDashboard = () => {
         <AddCategoryForm onCategoryAdded={fetchCategories} />
         <h3>Current Products by Category</h3>
         <div className="category-buttons">
-          {categoryCounts.length > 0 ? (
+          {categoryCounts && categoryCounts.length > 0 ? (
             categoryCounts.map((category) => (
               <button
                 key={category.category_id}
@@ -191,7 +192,7 @@ const AdminDashboard = () => {
           <p>Loading orders...</p>
         ) : errorOrders ? (
           <p className="error-message">{errorOrders}</p>
-        ) : orders.length > 0 ? (
+        ) : orders && orders.length > 0 ? (
           <table className="styled-table orders-table">
             <thead>
               <tr>
@@ -237,7 +238,7 @@ const AdminDashboard = () => {
 
               <h3>Order Items</h3>
               <ul>
-                {selectedOrder.order_items.map((item, index) => (
+                {selectedOrder.order_items?.map((item, index) => (
                   <li key={index}>
                     <strong>{item.product_name}</strong>
                     <p>Description: {item.description}</p>
