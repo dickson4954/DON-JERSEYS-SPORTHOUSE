@@ -1,87 +1,85 @@
-/* Full-width background styling */
 .container-full-width {
   width: 100%;
-  background-color: #FFA500; /* Orange background */
+  background-color: #ffecd1; /* Orange background */
   margin: 0;
   padding: 0;
 }
 
-/* Main content container for centered alignment */
-.main-content-container {
-  max-width: 1200px;
-  margin: 0 auto;
+
+/* Grid Layout */
+.filtered-products-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive grid */
+  gap: 20px;
   padding: 20px;
 }
 
-/* Filter Menu Styling */
-.list-group {
-  background-color: #fff;
-}
-
-.list-group-item {
-  background-color: #f8f9fa;
-  border: none;
-}
-
-.list-group-item h5 {
-  color: #333;
-}
-
-.btn-outline-dark.active {
-  background-color: #333;
-  color: #fff;
-}
-
-/* Ensures all product cards have the same fixed size */
+/* Product Card */
 .product-card {
-  width: 300px;  /* Fixed width */
-  height: 450px; /* Fixed height */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-  text-align: center;
-  padding: 15px;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  background: white;
-  position: relative;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  background: #fff;
+  border: 1px solid #ddd;
 }
 
-/* Ensures all images are the same size inside the card */
-.product-image {
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Image Container */
+.product-card img {
   width: 100%;
-  height: 250px; /* Fixed height */
-  object-fit: cover; /* Crop images to fit without stretching */
-  border-radius: 5px;
-  display: block;
+  height: 350px; /* Ensures a uniform image height */
+  object-fit: cover; /* Ensures images don't distort */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  transition: transform 0.3s ease-in-out;
 }
 
-/* Ensures text and price are always aligned */
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+/* Card Body */
+.card-body {
+  padding: 15px;
+  text-align: center;
+}
+
+/* Product Name */
 .product-name {
   font-size: 1rem;
+  font-weight: 600;
   color: #333;
+  margin-bottom: 8px;
+}
+
+/* Price and View Details */
+.price-details-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 10px;
 }
 
 .product-price {
-  font-size: 0.95rem;
-  color: #28a745; /* Green color for price */
+  font-size: 1.1rem;
   font-weight: bold;
+  color: #e44d26;
 }
 
-/* Ensures View Details button is always at the bottom */
+/* View Details Link */
 .view-details-link {
   display: flex;
   align-items: center;
-  font-size: 0.9rem;
-  color: #007bff;
+  gap: 5px;
   text-decoration: none;
-  transition: color 0.3s;
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #007bff;
+  transition: color 0.3s ease-in-out;
 }
 
 .view-details-link:hover {
@@ -89,83 +87,5 @@
 }
 
 .view-details-icon {
-  margin-right: 3px;
-  font-size: 1rem;
-  color: #007bff;
-}
-
-/* Ensures the product grid layout remains aligned */
-.product-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-}
-
-/* Fixes responsiveness */
-@media (max-width: 768px) {
-  .product-card {
-      width: 100%;
-  }
-
-  .product-image {
-      height: 200px;
-  }
-
-
-
-  .product-title {
-      font-size: 1.2rem;
-  }
-
-  .product-price {
-      font-size: 1rem;
-  }
-
-  .card-text {
-      font-size: 0.9rem;
-  }
-
-  .btn-outline-dark {
-      font-size: 0.9rem;
-  }
-}
-
-/* Miscellaneous styling */
-.mb-4 {
-  margin-bottom: 1.5rem;
-}
-
-.mt-5 {
-  margin-top: 3rem;
-}
-
-.py-4 {
-  padding-top: 1.5rem;
-  padding-bottom: 1.5rem;
-}
-
-.px-xl-5 {
-  padding-left: 3rem;
-  padding-right: 3rem;
-}
-
-/* Search and Button Controls */
-.input-group .form-control {
-  border-right: none;
-}
-
-.input-group .btn {
-  border-left: none;
-}
-
-.btn-outline-dark {
-  border-color: #6c757d;
-  color: #6c757d;
-  transition: all 0.3s ease;
-}
-
-.btn-outline-dark:hover {
-  background-color: #6c757d;
-  color: #fff;
+  font-size: 1.2rem;
 }

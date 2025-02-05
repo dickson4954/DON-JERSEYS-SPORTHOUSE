@@ -152,3 +152,9 @@ footer a:hover {
   object-fit: cover;
   margin-bottom: 1rem;
 }
+.feature-product-image {
+  width: 100%; /* Make it responsive */
+  height: 250px; /* Set a fixed height */
+  object-fit: cover; /* Ensure it covers the container */
+  border-radius: 10px; /* Optional: Add rounded corners */
+}

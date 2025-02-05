@@ -1,62 +1,70 @@
 .product-card {
-  width: 18rem; /* Fixed width for consistency */
-  height: 24rem; /* Fixed height for consistency */
-  border: none;
-  transition: transform 0.3s;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  border-radius: 10px;
   overflow: hidden;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
 .product-card:hover {
-  transform: scale(1.03);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.image-container {
+  width: 100%;
+  height: 350px; /* Set a fixed height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 
 .product-image {
   width: 100%;
-  height: 12rem; /* Fixed height for images */
-  object-fit: contain; /* Ensures the image is fully visible and maintains aspect ratio */
-  padding: 10px;
+  height: 100%;
+  object-fit: cover; /* Ensures the image fills the container without distortion */
+  transition: transform 0.3s ease-in-out;
+}
+
+.product-image:hover {
+  transform: scale(1.05);
 }
 
 .product-name {
-  font-size: 0.9rem; /* Smaller font size for product name */
+  font-size: 1.1rem;
+  font-weight: 600;
   color: #333;
   margin-top: 10px;
-  text-align: center;
-  white-space: nowrap; /* Prevent name from wrapping */
-  overflow: hidden;
-  text-overflow: ellipsis; /* Truncate text if too long */
 }
 
 .price-details-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 5px;
 }
 
 .product-price {
-  font-size: 0.85rem; /* Smaller font size for price */
-  color: #28a745; /* Green color for price */
+  font-size: 1.2rem;
   font-weight: bold;
+  color: #e44d26;
 }
 
 .view-details-link {
   display: flex;
   align-items: center;
-  font-size: 0.85rem; /* Smaller font size for view details */
-  color: #666; /* Dark gray color for view details */
+  gap: 5px;
   text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #007bff;
+  transition: color 0.3s ease-in-out;
 }
 
 .view-details-link:hover {
-  color: #007bff; /* Blue color on hover for view details link */
+  color: #0056b3;
 }
 
 .view-details-icon {
-  margin-right: 3px;
-  font-size: 0.85rem; /* Smaller icon size */
-  color: #007bff; /* Blue color for the view details icon */
+  font-size: 1.2rem;
 }

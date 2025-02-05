@@ -70,56 +70,54 @@ function Cart() {
       alert('Please fill in all required fields: Name, Phone, and Location.');
       return;
     }
-
+  
     setShowModal(false);
     setFormData({ name: '', phone: '', location: '' });
-    navigate('/shipping-page', { state: formData });
-};
-
-const handlePayNow = () => {
-  if (!formData.name || !formData.phone || !formData.location) {
-    alert('Please fill in all required fields: Name, Phone, and Location.');
-    return;
-  }
-
-  if (cart.length === 0) {
-    alert('Your cart is empty. Add items before proceeding.');
-    return;
-  }
-
-  // Calculate total amount with customization charge
-  const totalCustomizationCharge = cart.reduce((total, item) => {
-    return total + calculateCustomizationCharge(item) * item.quantity;
-  }, 0);
-
-  const totalAmount = cart.reduce((total, item) => total + item.price * item.quantity, 0);
-  let discountedTotal = totalAmount + totalCustomizationCharge;
-
-  if (hasCustomization) {
-    const customizationDiscount = 100; // Discount for customization
-    discountedTotal -= customizationDiscount;
-  }
-
-  alert(
-    `Order placed successfully! ${
-      hasCustomization ? 'You saved KES 100 on customization charges.' : ''
-    } Total paid: KES ${discountedTotal.toFixed(2)}`
-  );
-
-  setShowModal(false);
-  setFormData({ name: '', phone: '', location: '' });
-
-  // Pass discountedTotal and other necessary data to shipping page
- navigate('/shipping-page', {
-  state: {
-    cart: cart,  // Include the cart with updated item quantities and discounts
-    discountedTotal: discountedTotal, // Include the discount if applied
-  }
-});
-
+    navigate('/shipping-page', { state: { ...formData, cart } }); // Ensure name is included
+  };
   
-};
-
+  const handlePayNow = () => {
+    if (!formData.name || !formData.phone || !formData.location) {
+      alert('Please fill in all required fields: Name, Phone, and Location.');
+      return;
+    }
+  
+    if (cart.length === 0) {
+      alert('Your cart is empty. Add items before proceeding.');
+      return;
+    }
+  
+    // Calculate total amount with customization charge
+    const totalCustomizationCharge = cart.reduce((total, item) => {
+      return total + calculateCustomizationCharge(item) * item.quantity;
+    }, 0);
+  
+    const totalAmount = cart.reduce((total, item) => total + item.price * item.quantity, 0);
+    let discountedTotal = totalAmount + totalCustomizationCharge;
+  
+    if (hasCustomization) {
+      const customizationDiscount = 100; // Discount for customization
+      discountedTotal -= customizationDiscount;
+    }
+  
+    alert(
+      `Order placed successfully! ${
+        hasCustomization ? 'You saved KES 100 on customization charges.' : ''
+      } Total paid: KES ${discountedTotal.toFixed(2)}`
+    );
+  
+    setShowModal(false);
+    setFormData({ name: '', phone: '', location: '' });
+  
+    // Pass discountedTotal and other necessary data to shipping page
+    navigate('/shipping-page', {
+      state: {
+        ...formData, // Ensure name is included
+        cart: cart,  // Include the cart with updated item quantities and discounts
+        discountedTotal: discountedTotal, // Include the discount if applied
+      }
+    });
+  };
 
 
   return (

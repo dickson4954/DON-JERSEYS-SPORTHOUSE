@@ -24,6 +24,7 @@ export default function ShippingPage() {
   const [formErrors, setFormErrors] = useState({}); // To handle validation errors
   const [itemTotal, setItemTotal] = useState(0);
   const [customizationDiscount] = useState(0)
+  const [discountedTotal, setDiscountedTotal] = useState(0);
 
 
   const validateForm = () => {
@@ -54,17 +55,18 @@ export default function ShippingPage() {
       ...prevState,
       physicalAddress: formDataFromCart.location || '',
       phoneNumber: formDataFromCart.phone || '',
+      name: formDataFromCart.name || '', // Ensure name is set
       region: formDataFromCart.region || '',
     }));
   
     // Get the updated discounted total from the cart
     if (formDataFromCart.discountedTotal) {
-      setTotalPrice(formDataFromCart.discountedTotal); // Set the discounted total if available
+      setDiscountedTotal(formDataFromCart.discountedTotal); // Set the discounted total if available
+      setTotalPrice(formDataFromCart.discountedTotal); // Set the total price to discounted total
     } else {
       calculateTotalPrice(shippingFee);  // Otherwise, recalculate the total
     }
   }, [formDataFromCart]);
-  
 
 
   const handleChange = (e) => {
@@ -121,25 +123,24 @@ export default function ShippingPage() {
   };
   const calculateTotalPrice = (shippingFee) => {
     const itemTotal = cart.reduce((total, item) => {
-      const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
-      return total + itemPriceWithCustomization * item.quantity;
+        const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
+        return total + itemPriceWithCustomization * item.quantity;
     }, 0);
-  
+
     const packagingFee = 50;
-    let finalTotal = itemTotal + shippingFee + packagingFee;
-  
+    let finalTotal = discountedTotal || itemTotal; // Use discounted total if available
+
+    finalTotal += shippingFee + packagingFee;
+
     // Apply customization discount (now 100)
     if (customizationDiscount) {
-      finalTotal -= customizationDiscount;  // Subtract the discount
+        finalTotal -= customizationDiscount;  // Subtract the discount
     }
-  
-    setItemTotal(itemTotal);
+
+    setItemTotal(itemTotal); // This should reflect the total before shipping and packaging
     setTotalPrice(finalTotal); // Update the total price
     setLoading(false);
-  };
-  
-  
-
+};
   
 
   const handlePaymentSuccess = (cartItems) => {
@@ -158,50 +159,39 @@ export default function ShippingPage() {
             {/* Shipping Address Section */}
             <h2 className="text-2xl font-semibold mb-4" style={{ color: "#007bff" }}>Shipping Address</h2>
             <div className="row g-3">
-              <div className="col-12">
-                <input
-                  type="text"
-                  name="location"
-                  value={formData.physicalAddress}
-                  onChange={handleChange}
-                  className="form-control p-3"
-                />
-                {formErrors.physicalAddress && <small className="text-danger">{formErrors.physicalAddress}</small>}
-              </div>
-              <div className="col-6">
-                <input
-                  type="text"
-                  name="city"
-                  placeholder="City"
-                  onChange={handleChange}
-                  className="form-control p-3"
-                  style={{ borderColor: "#007bff" }}
-                />
-                {formErrors.city && <small className="text-danger">{formErrors.city}</small>}
-              </div>
-              <div className="col-6">
-                <input
-                  type="text"
-                  name="county"
-                  placeholder="County"
-                  onChange={handleChange}
-                  className="form-control p-3"
-                  style={{ borderColor: "#007bff" }}
-                />
-                {formErrors.county && <small className="text-danger">{formErrors.county}</small>}
-              </div>
-              <div className="col-6">
-                <input
-                  type="text"
-                  name="postalCode"
-                  placeholder="Postal Code"
-                  onChange={handleChange}
-                  className="form-control p-3"
-                  style={{ borderColor: "#007bff" }}
-                />
-                {formErrors.postalCode && <small className="text-danger">{formErrors.postalCode}</small>}
-              </div>
-              <div className="col-6">
+            <div className="col-12">
+  <input
+    type="text"
+    name="name" // Add name field
+    value={formData.name || ''} // Bind to formData.name
+    onChange={handleChange}
+    className="form-control p-3"
+    placeholder="Enter your name" // Placeholder for name
+  />
+</div>
+<div className="col-12">
+  <input
+    type="text"
+    name="location"
+    value={formData.physicalAddress}
+    onChange={handleChange}
+    className="form-control p-3"
+    placeholder="Enter your address" // Placeholder for address
+  />
+  {formErrors.physicalAddress && <small className="text-danger">{formErrors.physicalAddress}</small>}
+</div>
+<div className="col-12">
+  <input
+    type="text"
+    name="phone"
+    value={formData.phoneNumber}
+    onChange={handleChange}
+    className="form-control p-3"
+    placeholder="Enter your phone number" // Placeholder for phone number
+  />
+  {formErrors.phoneNumber && <small className="text-danger">{formErrors.phoneNumber}</small>}
+</div>
+<div className="col-6">
                 <input
                   type="text"
                   name="apartment"
@@ -210,16 +200,6 @@ export default function ShippingPage() {
                   className="form-control p-3"
                   style={{ borderColor: "#007bff" }}
                 />
-              </div>
-              <div className="col-12">
-                <input
-                  type="text"
-                  name="phone"
-                  value={formData.phoneNumber}
-                  onChange={handleChange}
-                  className="form-control p-3"
-                />
-                {formErrors.phoneNumber && <small className="text-danger">{formErrors.phoneNumber}</small>}
               </div>
             </div>
 
@@ -293,7 +273,7 @@ export default function ShippingPage() {
       </div>
       <div className="text-right font-weight-bold">
       <p className="mb-0 text-muted">
-                  Total: KES {totalItemPrice} {/* Dynamically show the calculated price */}
+                  Total: KES {totalPrice} {/* Dynamically show the calculated price */}
                 </p>
 
       </div>
@@ -308,17 +288,19 @@ export default function ShippingPage() {
               </div>
 
               {/* Summary Section */}
-              <div className="col-md-12 mt-4">
-                <div className="card" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
-                  <div className="card-body">
-                    <h5 className="card-title" style={{ color: "#007bff" }}>Summary</h5>
-                    <p>Item Total: KES {itemTotal.toFixed(2)}</p> 
-                    <p>Shipping Fee: KES {shippingFee}</p>
-                    <p>Packaging Fee: KES 50</p>
-                    <p>Total: KES {totalPrice.toFixed(2)}</p>
-                  </div>
-                </div>
-              </div>
+            {/* Summary Section */}
+<div className="col-md-12 mt-4">
+    <div className="card" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+        <div className="card-body">
+            <h5 className="card-title" style={{ color: "#007bff" }}>Summary</h5>
+            {/* <p>Item Total (after customization): KES {itemTotal.toFixed(2)}</p>  */}
+            {discountedTotal > 0 && <p>Discounted Total: KES {discountedTotal.toFixed(2)}</p>}
+            <p>Shipping Fee: KES {shippingFee}</p>
+            <p>Packaging Fee: KES 50</p>
+            <p>Total: KES {totalPrice.toFixed(2)}</p>
+        </div>
+    </div>
+</div>
             </div>
           </div>
         </div>
