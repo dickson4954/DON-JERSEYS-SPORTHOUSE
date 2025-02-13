@@ -122,48 +122,55 @@ function Header() {
                   </button>
                 </div>
 
-                {/* User Icon and Auth Controls */}
-                <ul className="navbar-nav mb-2 mb-lg-0">
-                  <li className="nav-item dropdown">
-                    <a
-                      href="#"
-                      className="nav-link dropdown-toggle"
-                      id="userDropdown"
-                      role="button"
-                      data-bs-toggle="dropdown"
-                      aria-expanded="false"
-                    >
-                      <FontAwesomeIcon icon={['fas', 'user-alt']} />
-                    </a>
-                    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                      {user ? (
-                        <>
-                          <li>
-                            <p className="dropdown-item">Welcome, {user.username}</p>
-                          </li>
-                          <li>
-                            <button className="dropdown-item" onClick={handleLogout}>
-                              Logout
-                            </button>
-                          </li>
-                        </>
-                      ) : (
-                        <>
-                          <li>
-                            <button className="dropdown-item" onClick={openLoginModal}>
-                              Login
-                            </button>
-                          </li>
-                          <li>
-                            <button className="dropdown-item" onClick={openSignupModal}>
-                              Sign Up
-                            </button>
-                          </li>
-                        </>
-                      )}
-                    </ul>
-                  </li>
-                </ul>
+               {/* User Icon and Auth Controls */}
+<ul className="navbar-nav mb-2 mb-lg-0">
+  <li className="nav-item dropdown">
+    <button
+      className="nav-link dropdown-toggle btn"
+      id="userDropdown"
+      role="button"
+      data-bs-toggle="dropdown"
+      aria-expanded="false"
+    >
+      <FontAwesomeIcon icon={['fas', 'user-alt']} />
+    </button>
+    <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+      {user ? (
+        <>
+          <li>
+            <p className="dropdown-item">Welcome, {user.username}</p>
+          </li>
+          {user.role === "admin" && ( // Check if the user is an admin
+            <li>
+              <Link className="dropdown-item" to="/admin-dashboard">
+                Admin Dashboard
+              </Link>
+            </li>
+          )}
+          <li>
+            <button className="dropdown-item" onClick={handleLogout}>
+              Logout
+            </button>
+          </li>
+        </>
+      ) : (
+        <>
+          <li>
+            <button className="dropdown-item" onClick={openLoginModal}>
+              Login
+            </button>
+          </li>
+          <li>
+            <button className="dropdown-item" onClick={openSignupModal}>
+              Sign Up
+            </button>
+          </li>
+        </>
+      )}
+    </ul>
+  </li>
+</ul>
+
               </div>
             </div>
 
