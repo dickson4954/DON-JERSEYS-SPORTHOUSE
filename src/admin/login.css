@@ -68,6 +68,13 @@ body{
 } */
 
 /* General page layout */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto; /* Centers the content */
+  padding: 0 16px; /* Adds some spacing */
+}
+
 .page-container {
     display: flex;
     height: 100vh;

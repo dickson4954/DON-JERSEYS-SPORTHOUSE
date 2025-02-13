@@ -144,11 +144,41 @@ export default function ShippingPage() {
 };
   
 
-  const handlePaymentSuccess = (cartItems) => {
-    // After payment success, redirect or show confirmation
-    alert("Payment successful! Proceeding to confirmation page...");
-    navigate("/confirmation", { state: { paymentSuccess: true, cartItems } });
+ const handlePaymentSuccess = async (cartItems) => {
+  const orderData = {
+    cart: cartItems,
+    delivery_details: {
+      name: formData.name,
+      phone: formData.phoneNumber,
+      location: formData.physicalAddress,
+      email: "user@example.com", // Add email if required
+    },
+    total_price: totalPrice,
   };
+
+  try {
+    const response = await fetch("http://localhost:5000/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      alert("Order placed successfully!");
+      navigate("/confirmation", { state: { paymentSuccess: true, orderId: data.order_id } });
+    } else {
+      alert("Failed to place order: " + data.message);
+    }
+  } catch (error) {
+    console.error("Error placing order:", error);
+    alert("An error occurred while placing the order.");
+  }
+};
+
 
   return (
     
