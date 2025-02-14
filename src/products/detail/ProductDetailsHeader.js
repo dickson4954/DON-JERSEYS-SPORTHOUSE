@@ -104,38 +104,6 @@ function ProductDetailsHeader() {
           <FontAwesomeIcon icon={["fab", "bootstrap"]} className="ms-1" size="lg" />
           <span className="ms-2 h5">Don Jerseys</span>
         </Link>
-        
-        {/* 🔥 Mobile Menu Toggle Button */}
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNav"
-          aria-controls="navbarNav"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        {/* 🔥 Navbar links inside the collapsible menu */}
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            {/* Add any other links here */}
-          </ul>
-        </div>
-
-        {/* ✅ Move Cart Button OUTSIDE Navbar Collapse */}
-        <button
-          type="button"
-          className="btn btn-outline-dark ms-3"
-          onClick={() => navigate("/cart")}
-        >
-          <FontAwesomeIcon icon={["fas", "shopping-cart"]} />
-          <span className="ms-2 badge rounded-pill bg-dark">
-            {cart.length || 0}
-          </span>
-        </button>
 
         <div className="ms-auto">
           {/* Always show the back button on the ShippingPage */}
