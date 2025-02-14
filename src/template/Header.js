@@ -94,7 +94,63 @@ function Header() {
               {/* <FontAwesomeIcon icon={['fab', 'bootstrap']} className="ms-1" size="lg" /> */}
               <span className="ms-2 h5">Don Jerseys</span>
             </Link>
-            
+             {/* Cart & User Section - Always Visible */}
+    <div className="d-flex align-items-center ms-auto">
+      {/* Cart Icon - Always visible on all screens */}
+      <div className="position-relative me-3">
+        <button type="button" className="btn btn-outline-dark position-relative" onClick={navigateToCart}>
+          <FontAwesomeIcon icon={['fas', 'shopping-cart']} />
+          {totalItems > 0 && (
+            <span className="badge bg-danger rounded-circle position-absolute top-0 end-0">
+              {totalItems}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* User/Admin Icon - Always visible */}
+      <div className="dropdown">
+        <button className="btn dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown">
+          <FontAwesomeIcon icon={['fas', 'user-alt']} />
+        </button>
+        <ul className="dropdown-menu dropdown-menu-end">
+          {user ? (
+            <>
+              <li><p className="dropdown-item">Welcome, {user.username}</p></li>
+              {user.role === "admin" && (
+                <li>
+                  <Link className="dropdown-item" to="/admin-dashboard">
+                    <FontAwesomeIcon icon={['fas', 'user-shield']} className="me-2" />
+                    Admin Dashboard
+                  </Link>
+                </li>
+              )}
+              <li><button className="dropdown-item" onClick={handleLogout}>Logout</button></li>
+            </>
+          ) : (
+            <>
+              <li><button className="dropdown-item" onClick={openLoginModal}>Login</button></li>
+              <li><button className="dropdown-item" onClick={openSignupModal}>Sign Up</button></li>
+            </>
+          )}
+        </ul>
+      </div>
+    </div>
+
+    {/* Mobile Menu Toggle Button */}
+    <button className="navbar-toggler ms-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span className="navbar-toggler-icon"></span>
+    </button>
+
+    {/* Collapsible Menu */}
+    <div className="collapse navbar-collapse" id="navbarNav">
+      <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+        <li className="nav-item">
+          <Link to="/products" className="nav-link" onClick={() => setOpenedDrawer(false)}>Explore</Link>
+        </li>
+      </ul>
+    </div>
+  
 
             <div className={"navbar-collapse offcanvas-collapse " + (openedDrawer ? "open" : "")}>
               <ul className="navbar-nav me-auto mb-lg-0">
@@ -102,6 +158,7 @@ function Header() {
                   <Link to="/products" className="nav-link" onClick={() => setOpenedDrawer(false)}>
                     Explore
                   </Link>
+                  
                 </li>
               </ul>
 
