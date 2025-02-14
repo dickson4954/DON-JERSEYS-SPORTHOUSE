@@ -38,7 +38,7 @@ function PaymentPage() {
     setLoading(true);
     try {
       // Send the payment data to the backend
-      const response = await axios.post('http://127.0.0.1:5000/pay', {
+      const response = await axios.post('https://donjerseyssporthouseserver-5-cmus.onrender.com/pay', {
         phone_number: phoneNumber.trim(),
         amount: paymentAmount,
       }, {

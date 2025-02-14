@@ -15,7 +15,7 @@ const RegisterAdminForm = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('http://127.0.0.1:5000/admin/register', {
+      const response = await axios.post('https://donjerseyssporthouseserver-5-cmus.onrender.com/admin/register', {
         username,
         email,
         password,

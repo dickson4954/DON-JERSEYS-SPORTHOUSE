@@ -32,7 +32,7 @@ function ProductDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/products/${id}`)
+    fetch(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${id}`)
       .then(response => response.json())
       .then(data => {
         console.log("Fetched Product:", data);

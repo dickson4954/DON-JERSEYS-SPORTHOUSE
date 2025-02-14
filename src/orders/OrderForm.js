@@ -41,7 +41,7 @@ const OrderForm = () => {
     
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/orders', {
+      const response = await fetch('https://donjerseyssporthouseserver-5-cmus.onrender.com/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

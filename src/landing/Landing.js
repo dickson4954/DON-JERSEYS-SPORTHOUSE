@@ -16,7 +16,7 @@ function Landing() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:5000/products?limit=6&sort=created_at_desc')
+    axios.get('https://donjerseyssporthouseserver-5-cmus.onrender.com/products?limit=6&sort=created_at_desc')
       .then(response => {
         setProducts(response.data); 
       })

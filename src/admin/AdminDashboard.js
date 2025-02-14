@@ -39,7 +39,7 @@ const AdminDashboard = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:5000/categories');
+      const response = await axios.get('https://donjerseyssporthouseserver-5-cmus.onrender.com/categories');
       setCategoryCounts(response.data || []); // Fallback to an empty array
     } catch (error) {
       console.error('Error fetching category counts:', error);
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
     setActiveCategory(categoryId);
     setLoading(true);
     axios
-      .get(`http://127.0.0.1:5000/categories/${categoryId}`)
+      .get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/categories/${categoryId}`)
       .then((response) => {
         setProducts(response.data || []); // Fallback to an empty array
         setError('');
@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      const response = await axios.get('http://127.0.0.1:5000/orders');
+      const response = await axios.get('https://donjerseyssporthouseserver-5-cmus.onrender.com/orders');
       setOrders(response.data || []); // Fallback to an empty array
       setErrorOrders('');
     } catch (error) {
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
   const handleViewOrder = async (orderId) => {
     try {
       setLoadingOrders(true);
-      const response = await axios.get(`http://127.0.0.1:5000/orders/${orderId}`);
+      const response = await axios.get(`s://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}`);
       setSelectedOrder(response.data || null); // Fallback to null
       setErrorOrders('');
     } catch (error) {

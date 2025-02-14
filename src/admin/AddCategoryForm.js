@@ -7,7 +7,7 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
 
   const handleCategorySubmit = (e) => {
     e.preventDefault();
-    axios.post('http://127.0.0.1:5000/categories', { name: categoryName })
+    axios.post('https://donjerseyssporthouseserver-5-cmus.onrender.com/categories', { name: categoryName })
       .then((response) => {
         setMessage(response.data.message);
         setCategoryName('');

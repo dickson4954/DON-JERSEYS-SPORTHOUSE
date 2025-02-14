@@ -11,7 +11,7 @@ function RelatedProduct({ category_id, currentProductId }) {
     console.log("Fetching related products for category:", category_id);
     console.log("Current product ID:", currentProductId);
 
-    fetch(`http://127.0.0.1:5000/products/by-category/${category_id}`)
+    fetch(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/by-category/${category_id}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Failed to fetch related products.');

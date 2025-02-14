@@ -40,7 +40,7 @@ const LoginPage = () => {
       return;
     }
 
-    const url = isLogin ? 'http://127.0.0.1:5000/login' : 'http://127.0.0.1:5000/signup';
+    const url = isLogin ? 'https://donjerseyssporthouseserver-5-cmus.onrender.com/login' : 'https://donjerseyssporthouseserver-5-cmus.onrender.com/signup';
     const requestData = isLogin
       ? { username: formData.username, password: formData.password }
       : { username: formData.username, email: formData.email, password: formData.password };

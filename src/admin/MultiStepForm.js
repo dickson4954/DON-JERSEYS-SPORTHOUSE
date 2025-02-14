@@ -22,7 +22,7 @@ const MultiStepForm = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000/categories');
+        const response = await fetch('https://donjerseyssporthouseserver-5-cmus.onrender.com/categories');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         console.log('Fetched Categories:', data); // Debugging the response
@@ -120,7 +120,7 @@ const MultiStepForm = () => {
       imageData.append('file', imageFile);  // Ensure the field name is 'file'
 
       try {
-        const response = await fetch('http://localhost:5000/upload', {
+        const response = await fetch('https://donjerseyssporthouseserver-5-cmus.onrender.com/upload', {
           method: 'POST',
           body: imageData,
         });
@@ -156,7 +156,7 @@ const MultiStepForm = () => {
     };
 
     try {
-      const productResponse = await fetch('http://127.0.0.1:5000/products', {
+      const productResponse = await fetch('https://donjerseyssporthouseserver-5-cmus.onrender.com/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

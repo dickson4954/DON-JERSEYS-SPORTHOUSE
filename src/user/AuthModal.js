@@ -18,14 +18,14 @@ function AuthModal({ isOpen, onClose }) {
 
     try {
       if (isSignup) {
-        const response = await axios.post('http://127.0.0.1:5000/signup', { username, email, password });
+        const response = await axios.post('https://donjerseyssporthouseserver-5-cmus.onrender.com/signup', { username, email, password });
         if (response.data.message === "User registered successfully") {
           onClose();
         } else {
           setError(response.data.message);
         }
       } else {
-        const response = await axios.post('http://127.0.0.1:5000/login', { identifier, password });
+        const response = await axios.post('https://donjerseyssporthouseserver-5-cmus.onrender.com/login', { identifier, password });
         if (response.data.access_token) {
           // Store JWT, user details, and admin status
           localStorage.setItem('token', response.data.access_token);
