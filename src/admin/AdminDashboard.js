@@ -193,7 +193,6 @@ const AdminDashboard = () => {
   <p>No orders found.</p>
 )}
 
-/* ✅ Products Table (Correctly placed) */
 {activeCategory && (
   <div className="product-table">
     <h3>Products in {categoryCounts.find((cat) => cat.category_id === activeCategory)?.category_name}</h3>
