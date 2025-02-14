@@ -155,49 +155,56 @@ const AdminDashboard = () => {
         </div>
 
         {activeCategory && (
-          <div className="product-table">
-            <h3>Products in {categoryCounts.find((cat) => cat.category_id === activeCategory)?.category_name}</h3>
-            {loading ? (
-              <p>Loading products...</p>
-            ) : error ? (
-              <p className="error-message">{error}</p>
-            ) : products.length > 0 ? (
-              <table className="styled-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Price</th>
-                    <th>Stock</th>
-                    <th>Image</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {products.map((product) => (
-                    <tr key={product.id}>
-                      <td>{product.id}</td>
-                      <td>{product.name}</td>
-                      <td>{product.description}</td>
-                      <td>{product.price}</td>
-                      <td>{product.stock}</td>
-                      <td>
-                        <img
-                          src={product.image_url}
-                          alt={product.name}
-                          onClick={() => handleImageClick(product.image_url)}
-                          style={{ width: '50px', cursor: 'pointer' }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p>No products found in this category.</p>
-            )}
-          </div>
-        )}
+  <div className="product-table">
+    <h3>Products in {categoryCounts.find((cat) => cat.category_id === activeCategory)?.category_name}</h3>
+    {loading ? (
+      <p>Loading products...</p>
+    ) : error ? (
+      <p className="error-message">{error}</p>
+    ) : products.length > 0 ? (
+      <table className="styled-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Image</th>
+            <th>Actions</th> {/* Added for delete button */}
+          </tr>
+        </thead>
+        <tbody>
+          {products.map((product) => (
+            <tr key={product.id}>
+              <td>{product.id}</td>
+              <td>{product.name}</td>
+              <td>{product.description}</td>
+              <td>{product.price}</td>
+              <td>{product.stock}</td>
+              <td>
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  onClick={() => handleImageClick(product.image_url)}
+                  style={{ width: '50px', cursor: 'pointer' }}
+                />
+              </td>
+              <td>
+                <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
+                  🗑️ Delete
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p>No products found in this category.</p>
+    )}
+  </div>
+)}
+
 
         <h2>Orders</h2>
         {loadingOrders ? (
@@ -206,7 +213,7 @@ const AdminDashboard = () => {
           <p className="error-message">{errorOrders}</p>
         ) : orders && orders.length > 0 ? (
           <table className="styled-table orders-table">
-              <thead>
+  <thead>
     <tr>
       <th>ID</th>
       <th>Name</th>
@@ -214,7 +221,7 @@ const AdminDashboard = () => {
       <th>Price</th>
       <th>Stock</th>
       <th>Image</th>
-      <th>Actions</th> {/* Added for Delete button */}
+      <th>Actions</th> {/* Added for the delete button */}
     </tr>
   </thead>
             <tbody>
