@@ -103,7 +103,19 @@ const AdminDashboard = () => {
       setLoadingOrders(false);
     }
   };
-
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await axios.delete(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${productId}`);
+        alert("Product deleted successfully!");
+        setProducts(products.filter((product) => product.id !== productId)); // Update UI
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product. Please try again.");
+      }
+    }
+  };
+  
   const handleCloseModal = () => setSelectedOrder(null);
 
   return (
@@ -218,8 +230,36 @@ const AdminDashboard = () => {
                     <button onClick={() => handleViewOrder(order.id)}>View</button>
                   </td>
                 </tr>
+                
               ))}
-            </tbody>
+           
+          
+  {products.map((product) => (
+    <tr key={product.id}>
+      <td>{product.id}</td>
+      <td>{product.name}</td>
+      <td>{product.description}</td>
+      <td>{product.price}</td>
+      <td>{product.stock}</td>
+      <td>
+        <img
+          src={product.image_url}
+          alt={product.name}
+          onClick={() => handleImageClick(product.image_url)}
+          style={{ width: '50px', cursor: 'pointer' }}
+        />
+      
+      <td>
+        <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
+          🗑️ Delete
+        </button>
+      </td>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+
           </table>
         ) : (
           <p>No orders found.</p>
@@ -258,6 +298,7 @@ const AdminDashboard = () => {
               <img src={selectedImage} alt="Product" />
             </div>
           </div>
+          
         )}
       </div>
     </div>
