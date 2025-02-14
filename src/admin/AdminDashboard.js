@@ -234,6 +234,7 @@ const AdminDashboard = () => {
               ))}
            
           
+         
   {products.map((product) => (
     <tr key={product.id}>
       <td>{product.id}</td>
@@ -248,16 +249,16 @@ const AdminDashboard = () => {
           onClick={() => handleImageClick(product.image_url)}
           style={{ width: '50px', cursor: 'pointer' }}
         />
-      
+      </td>
       <td>
         <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
           🗑️ Delete
         </button>
       </td>
-      </td>
     </tr>
   ))}
 </tbody>
+
 
 
           </table>
