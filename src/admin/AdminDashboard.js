@@ -154,7 +154,47 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {activeCategory && (
+        {/* Orders Table */}
+<h2>Orders</h2>
+{loadingOrders ? (
+  <p>Loading orders...</p>
+) : errorOrders ? (
+  <p className="error-message">{errorOrders}</p>
+) : orders && orders.length > 0 ? (
+  <table className="styled-table orders-table">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>User Name</th>
+        <th>Email</th>
+        <th>Phone</th>
+        <th>Location</th>
+        <th>Total Price</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {orders.map((order) => (
+        <tr key={order.id}>
+          <td>{order.id}</td>
+          <td>{order.name}</td>
+          <td>{order.email}</td>
+          <td>{order.phone}</td>
+          <td>{order.location}</td>
+          <td>{order.total_price}</td>
+          <td>
+            <button onClick={() => handleViewOrder(order.id)}>View</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+) : (
+  <p>No orders found.</p>
+)}
+
+/* ✅ Products Table (Correctly placed) */
+{activeCategory && (
   <div className="product-table">
     <h3>Products in {categoryCounts.find((cat) => cat.category_id === activeCategory)?.category_name}</h3>
     {loading ? (
@@ -171,7 +211,7 @@ const AdminDashboard = () => {
             <th>Price</th>
             <th>Stock</th>
             <th>Image</th>
-            <th>Actions</th> {/* Added for delete button */}
+            <th>Actions</th> {/* Added Actions Column */}
           </tr>
         </thead>
         <tbody>
@@ -190,7 +230,7 @@ const AdminDashboard = () => {
                   style={{ width: '50px', cursor: 'pointer' }}
                 />
               </td>
-              <td>
+              <td> {/* ✅ Correct placement of delete button */}
                 <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
                   🗑️ Delete
                 </button>
@@ -205,70 +245,6 @@ const AdminDashboard = () => {
   </div>
 )}
 
-
-        <h2>Orders</h2>
-        {loadingOrders ? (
-          <p>Loading orders...</p>
-        ) : errorOrders ? (
-          <p className="error-message">{errorOrders}</p>
-        ) : orders && orders.length > 0 ? (
-          <table className="styled-table orders-table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Name</th>
-      <th>Description</th>
-      <th>Price</th>
-      <th>Stock</th>
-      <th>Image</th>
-      <th>Actions</th> {/* Added for the delete button */}
-    </tr>
-  </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td>{order.id}</td>
-                  <td>{order.name}</td>
-                  <td>{order.email}</td>
-                  <td>{order.phone}</td>
-                  <td>{order.location}</td>
-                  <td>{order.total_price}</td>
-                  <td>
-                    <button onClick={() => handleViewOrder(order.id)}>View</button>
-                  </td>
-                </tr>
-                
-              ))}
-           
-          
-         
-           {products.map((product) => (
-      <tr key={product.id}>
-        <td>{product.id}</td>
-        <td>{product.name}</td>
-        <td>{product.description}</td>
-        <td>{product.price}</td>
-        <td>{product.stock}</td>
-        <td>
-          <img
-            src={product.image_url}
-            alt={product.name}
-            onClick={() => handleImageClick(product.image_url)}
-            style={{ width: '50px', cursor: 'pointer' }}
-          />
-        </td>
-        <td>
-          <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
-            🗑️ Delete
-          </button>
-        </td>
-      </tr>
-    ))}
-  </tbody>
-</table>
-        ) : (
-          <p>No orders found.</p>
-        )}
 
         {selectedOrder && (
           <div className="order-details-modal" onClick={handleCloseModal}>
