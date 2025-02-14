@@ -206,17 +206,17 @@ const AdminDashboard = () => {
           <p className="error-message">{errorOrders}</p>
         ) : orders && orders.length > 0 ? (
           <table className="styled-table orders-table">
-            <thead>
-              <tr>
-                <th>Order ID</th>
-                <th>User Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Location</th>
-                <th>Total Price</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
+              <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Price</th>
+      <th>Stock</th>
+      <th>Image</th>
+      <th>Actions</th> {/* Added for Delete button */}
+    </tr>
+  </thead>
             <tbody>
               {orders.map((order) => (
                 <tr key={order.id}>
@@ -235,33 +235,30 @@ const AdminDashboard = () => {
            
           
          
-  {products.map((product) => (
-    <tr key={product.id}>
-      <td>{product.id}</td>
-      <td>{product.name}</td>
-      <td>{product.description}</td>
-      <td>{product.price}</td>
-      <td>{product.stock}</td>
-      <td>
-        <img
-          src={product.image_url}
-          alt={product.name}
-          onClick={() => handleImageClick(product.image_url)}
-          style={{ width: '50px', cursor: 'pointer' }}
-        />
-      </td>
-      <td>
-        <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
-          🗑️ Delete
-        </button>
-      </td>
-    </tr>
-  ))}
-</tbody>
-
-
-
-          </table>
+           {products.map((product) => (
+      <tr key={product.id}>
+        <td>{product.id}</td>
+        <td>{product.name}</td>
+        <td>{product.description}</td>
+        <td>{product.price}</td>
+        <td>{product.stock}</td>
+        <td>
+          <img
+            src={product.image_url}
+            alt={product.name}
+            onClick={() => handleImageClick(product.image_url)}
+            style={{ width: '50px', cursor: 'pointer' }}
+          />
+        </td>
+        <td>
+          <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
+            🗑️ Delete
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
         ) : (
           <p>No orders found.</p>
         )}
