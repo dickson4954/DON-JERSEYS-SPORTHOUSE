@@ -89,12 +89,28 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
-
+  const handleDeleteProduct = async (productId) => {
+    // function logic
+  };
+  
   const handleViewOrder = async (orderId) => {
     try {
       setLoadingOrders(true);
-      const response = await axios.get(`s://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}`);
-      setSelectedOrder(response.data || null); // Fallback to null
+      
+      // Fetching basic order details
+      const orderResponse = await axios.get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}`);
+      const orderData = orderResponse.data;
+  
+      // Fetching additional customization details
+      const customizationResponse = await axios.get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}/customization`);
+      const customizationData = customizationResponse.data;
+  
+      // Combining basic order data with customization data
+      setSelectedOrder({
+        ...orderData,
+        customization: customizationData || {}, // Assuming customization is an object
+      });
+  
       setErrorOrders('');
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -103,18 +119,7 @@ const AdminDashboard = () => {
       setLoadingOrders(false);
     }
   };
-  const handleDeleteProduct = async (productId) => {
-    if (window.confirm("Are you sure you want to delete this product?")) {
-      try {
-        await axios.delete(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${productId}`);
-        alert("Product deleted successfully!");
-        setProducts(products.filter((product) => product.id !== productId)); // Update UI
-      } catch (error) {
-        console.error("Error deleting product:", error);
-        alert("Failed to delete product. Please try again.");
-      }
-    }
-  };
+  
   
   const handleCloseModal = () => setSelectedOrder(null);
 
@@ -245,31 +250,42 @@ const AdminDashboard = () => {
 )}
 
 
-        {selectedOrder && (
-          <div className="order-details-modal" onClick={handleCloseModal}>
-            <div className="order-details-content" onClick={(e) => e.stopPropagation()}>
-              <span className="close-modal" onClick={handleCloseModal}>&times;</span>
-              <h2>Order Details - Order ID: {selectedOrder.id}</h2>
-              <p><strong>Customer:</strong> {selectedOrder.name}</p>
-              <p><strong>Email:</strong> {selectedOrder.email}</p>
-              <p><strong>Phone:</strong> {selectedOrder.phone}</p>
-              <p><strong>Location:</strong> {selectedOrder.location}</p>
-              <p><strong>Total Price:</strong> {selectedOrder.total_price}</p>
+{selectedOrder && (
+  <div className="order-details-modal" onClick={handleCloseModal}>
+    <div className="order-details-content" onClick={(e) => e.stopPropagation()}>
+      <span className="close-modal" onClick={handleCloseModal}>&times;</span>
+      <h2>Order Details - Order ID: {selectedOrder.id}</h2>
+      <p><strong>Customer:</strong> {selectedOrder.name}</p>
+      <p><strong>Email:</strong> {selectedOrder.email}</p>
+      <p><strong>Phone:</strong> {selectedOrder.phone}</p>
+      <p><strong>Location:</strong> {selectedOrder.location}</p>
+      <p><strong>Total Price:</strong> {selectedOrder.total_price}</p>
 
-              <h3>Order Items</h3>
-              <ul>
-                {selectedOrder.order_items?.map((item, index) => (
-                  <li key={index}>
-                    <strong>{item.product_name}</strong>
-                    <p>Description: {item.description}</p>
-                    <p>Quantity: {item.quantity}</p>
-                    <p>Total Item Price: {item.total_item_price}</p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        )}
+      {/* Displaying Size Customization or Other Features */}
+      {selectedOrder.customization && (
+        <div>
+          <h3>Customization Details</h3>
+          <p><strong>Size:</strong> {selectedOrder.customization.size || 'Not specified'}</p>
+          <p><strong>Additional Features:</strong> {selectedOrder.customization.features || 'None'}</p>
+        </div>
+      )}
+
+      <h3>Order Items</h3>
+      <ul>
+        {selectedOrder.order_items?.map((item, index) => (
+          <li key={index}>
+            <strong>{item.product_name}</strong>
+            <p>Description: {item.description}</p>
+            <p>Quantity: {item.quantity}</p>
+            <p>Total Item Price: {item.total_item_price}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+)}
+
+      
 
         {selectedImage && (
           <div className="image-modal" onClick={closeModal}>

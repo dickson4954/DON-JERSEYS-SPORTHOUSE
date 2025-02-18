@@ -144,14 +144,24 @@ export default function ShippingPage() {
 };
   
 
- const handlePaymentSuccess = async (cartItems) => {
+const handlePaymentSuccess = async (cartItems) => {
   const orderData = {
-    cart: cartItems,
+    cart: cartItems.map(item => ({
+      name: item.name,
+      quantity: item.quantity,
+      size: item.size || 'N/A',
+      edition: item.edition || 'N/A',
+      customName: item.customName || '',
+      customNumber: item.customNumber || '',
+      fontType: item.fontType || '',
+      badge: item.badge || '',
+      price: item.price
+    })),
     delivery_details: {
       name: formData.name,
       phone: formData.phoneNumber,
       location: formData.physicalAddress,
-      email: "user@example.com", // Add email if required
+      region: formData.region,
     },
     total_price: totalPrice,
   };
@@ -186,10 +196,10 @@ export default function ShippingPage() {
     
       <ProductDetailsHeader />
       
-      <div className="container mt-5 p-4" style={{ backgroundColor: "#ffecd1", minHeight: "100vh" }}>
+      <div className="container-fluid mt-5 p-4" style={{ backgroundColor: "#ffecd1", minHeight: "100vh" }}>
         <div className="row">
           {/* Shipping Address and Shipping Region Section (Left side) */}
-          <div className="col-md-6">
+          <div className="col-12">
             {/* Shipping Address Section */}
             <h2 className="text-2xl font-semibold mb-4" style={{ color: "#007bff" }}>Shipping Address</h2>
             <div className="row g-3">
@@ -263,81 +273,96 @@ export default function ShippingPage() {
             </select>
             {formErrors.region && <small className="text-danger">{formErrors.region}</small>}
           </div>
+          
+         
 
-          {/* Item Details and Summary Section */}
-          <div className="col-md-6">
-            <div className="row">
-              {/* Item Details */}
-              <div className="col-md-12">
-  <div className="card p-3" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
-    <div className="card-body">
-      <h5 className="card-title" style={{ color: "#007bff" }}>Item Details</h5>
-      {cart.map((item, index) => {
-  // Calculate item price including customizations
-  const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
-  const totalItemPrice = (item.quantity * itemPriceWithCustomization).toFixed(2);
-  return (
-    <div key={index} className="d-flex align-items-center p-3 mb-3" style={{
-      border: "1px solid #ddd", borderRadius: "10px", background: "#f8f9fa"
-    }}>
-      <div style={{ width: "80px", height: "80px", flexShrink: 0 }}>
-        <img src={item.image_url} alt={item.name} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }} />
-      </div>
-      <div className="px-3 flex-grow-1">
-        <strong>{item.name}</strong>
-        <p className="mb-1">Quantity: {item.quantity}</p>
-      </div>
-      <div className="px-3 flex-grow-1">
-        <p className="mb-1">Size: {item.size || 'N/A'}</p>
-        <p className="mb-1">Edition: {item.edition || 'N/A'}</p>
-        {/* Customization Details */}
-        <div className="dropdown">
-          <button className="btn btn-outline-secondary btn-sm dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown">
-            More Details
-          </button>
-          <div className="dropdown-menu p-2">
-            {item.customName && <p className="mb-1">Custom Name: {item.customName}</p>}
-            {item.customNumber && <p className="mb-1">Custom Number: {item.customNumber}</p>}
-            {item.fontType && <p className="mb-1">Font Type: {item.fontType}</p>}
-            {item.badge && <p className="mb-1">Badge: {item.badge}</p>}
-          </div>
+         {/* Item Details and Summary Section */}
+<div className="p-3 col-12 col-md-6">
+  <div className="row">
+    {/* Item Details */}
+    <div className="col-md-12">
+      <div className="card p-3" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+        <div className="card-body">
+          <h5 className="card-title" style={{ color: "#007bff" }}>Item Details</h5>
+
+          {cart.map((item, index) => {
+            const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
+            const totalItemPrice = (item.quantity * itemPriceWithCustomization).toFixed(2);
+
+            return (
+              <div key={index} className="d-flex flex-column flex-md-row align-items-center p-3 mb-3" style={{
+                border: "1px solid #ddd",
+                borderRadius: "10px",
+                background: "#f8f9fa",
+                overflow: "hidden",
+                width: "100%"
+              }}>
+                {/* Product Image */}
+                <div style={{ width: "80px", height: "80px", flexShrink: 0 }}>
+                  <img 
+                    src={item.image_url} 
+                    alt={item.name} 
+                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }} 
+                  />
+                </div>
+
+                {/* Product Details */}
+                <div className="px-3 flex-grow-1 text-center text-md-left w-100">
+                  <strong>{item.name}</strong>
+                  <p className="mb-1">Quantity: {item.quantity}</p>
+                  <p className="mb-1">Size: {item.size || 'N/A'}</p>
+                  <p className="mb-1">Edition: {item.edition || 'N/A'}</p>
+
+                  {/* Customization Dropdown */}
+                  <div className="dropdown">
+                    <button 
+                      className="btn btn-outline-secondary btn-sm dropdown-toggle"
+                      type="button"
+                      data-bs-toggle="dropdown">
+                      More Details
+                    </button>
+                    <div className="dropdown-menu p-2">
+                      {item.customName && <p className="mb-1">Custom Name: {item.customName}</p>}
+                      {item.customNumber && <p className="mb-1">Custom Number: {item.customNumber}</p>}
+                      {item.fontType && <p className="mb-1">Font Type: {item.fontType}</p>}
+                      {item.badge && <p className="mb-1">Badge: {item.badge}</p>}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Total Price Section */}
+                <div className="text-center text-md-right w-100 mt-2 font-weight-bold">
+                  <p className="mb-0 text-muted">
+                    Total: KES {totalItemPrice} 
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
-      <div className="text-right font-weight-bold">
-      <p className="mb-0 text-muted">
-                  Total: KES {totalPrice} {/* Dynamically show the calculated price */}
-                </p>
-
-      </div>
     </div>
-  );
-})}
+  </div>
+</div>
 
                       
                     
-                  </div>
-                </div>
-              </div>
-
-              {/* Summary Section */}
-            {/* Summary Section */}
-<div className="col-md-12 mt-4">
-    <div className="card" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
-        <div className="card-body">
-            <h5 className="card-title" style={{ color: "#007bff" }}>Summary</h5>
-            {/* <p>Item Total (after customization): KES {itemTotal.toFixed(2)}</p>  */}
-            {discountedTotal > 0 && <p>Discounted Total: KES {discountedTotal.toFixed(2)}</p>}
-            <p>Shipping Fee: KES {shippingFee}</p>
-            <p>Packaging Fee: KES 50</p>
-            <p>Total: KES {totalPrice.toFixed(2)}</p>
+                  
+         
+  {/* Summary Section */}
+  <div className="col-12 mt-4">
+      <div className="card" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+        <div className="card-body text-center text-md-left">
+          <h5 className="card-title" style={{ color: "#007bff" }}>Summary</h5>
+          <p>Shipping Fee: KES {shippingFee}</p>
+          <p>Packaging Fee: KES 50</p>
+          <p>Total: KES {totalPrice.toFixed(2)}</p>
         </div>
+      </div>
     </div>
-</div>
             </div>
           </div>
-        </div>
+        
 
         {/* Add Payment Section below the form */}
         <PaymentPage
@@ -345,7 +370,7 @@ export default function ShippingPage() {
           cartItems={cart}
           onPaymentSuccess={handlePaymentSuccess}
         />
-      </div>
+     
     </>
   );
 }
