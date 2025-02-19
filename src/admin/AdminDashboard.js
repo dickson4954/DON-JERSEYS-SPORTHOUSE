@@ -89,11 +89,21 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
-  const handleDeleteProduct = async (productId) => {
-    // function logic
-  };
   
-  const handleViewOrder = async (orderId) => {
+  
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await axios.delete(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${productId}`);
+        alert("Product deleted successfully!");
+        setProducts(products.filter((product) => product.id !== productId)); // Update UI
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product. Please try again.");
+      }
+    }
+  };
+   handleViewOrder = async (orderId) => {
     try {
       setLoadingOrders(true);
       
