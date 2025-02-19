@@ -103,7 +103,7 @@ const AdminDashboard = () => {
       }
     }
   };
-   handleViewOrder = async (orderId) => {
+ const handleViewOrder = async (orderId) => {
     try {
       setLoadingOrders(true);
       
