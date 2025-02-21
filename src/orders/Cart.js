@@ -77,16 +77,15 @@ function Cart() {
     setFormData({ name: '', phone: '', location: '' });
     navigate('/shipping-page', { state: { ...formData, cart } }); // Ensure name is included
   };
-  
-  const handlePayNow = () => {
+  const handlePayNow = async () => {
     if (!formData.name || !formData.phone || !formData.location) {
       alert('Please fill in all required fields: Name, Phone, and Location.');
       return;
     }
   
-    if (cart.length === 0) {
-      alert('Your cart is empty. Add items before proceeding.');
-      return;
+     if (!cart || cart.length === 0) {
+    alert("Cart is empty.");
+    return;
     }
   
     // Calculate total amount with customization charge
@@ -102,26 +101,59 @@ function Cart() {
       discountedTotal -= customizationDiscount;
     }
   
-    alert(
-      `Order placed successfully! ${
-        hasCustomization ? 'You saved KES 100 on customization charges.' : ''
-      } Total paid: KES ${discountedTotal.toFixed(2)}`
-    );
+    // Prepare order data
+    const orderData = {
+      cart: cart.map(item => ({
+        variant_id: item.id,
+        quantity: item.quantity,
+        custom_name: item.customName || null,
+        custom_number: item.customNumber || null,
+        font_type: item.fontType || null,
+        badge: item.badge || null,
+        price: item.price
+      })),
+      shipping_details: {
+        name: formData.name,
+        phone: formData.phone,
+        location: formData.location
+      },
+      total_price: discountedTotal
+    };
   
-    setShowModal(false);
-    setFormData({ name: '', phone: '', location: '' });
+    try {
+      const response = await fetch("http://127.0.0.1:5000/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(orderData)
+      });
   
-    // Pass discountedTotal and other necessary data to shipping page
-    navigate('/shipping-page', {
-      state: {
-        ...formData, // Ensure name is included
-        cart: cart,  // Include the cart with updated item quantities and discounts
-        discountedTotal: discountedTotal, // Include the discount if applied
+      const data = await response.json();
+  
+      if (response.ok) {
+        alert(`Order placed successfully! ${hasCustomization ? 'You saved KES 100 on customization charges.' : ''} Total paid: KES ${discountedTotal.toFixed(2)}`);
+  
+        setShowModal(false);
+        setFormData({ name: '', phone: '', location: '' });
+  
+        navigate('/shipping-page', {
+          state: {
+            ...formData, 
+            cart,
+            discountedTotal,
+            orderId: data.order_id // Pass order ID if needed
+          }
+        });
+      } else {
+        alert(`Error placing order: ${data.message}`);
       }
-    });
+    } catch (error) {
+      console.error("Error placing order:", error);
+      alert("Something went wrong. Please try again.");
+    }
   };
-
-
+  
   return (
     <>
       <ProductDetailsHeader />

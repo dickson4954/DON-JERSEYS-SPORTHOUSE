@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      const response = await axios.get('https://donjerseyssporthouseserver-5-cmus.onrender.com/orders');
+      const response = await axios.get('http://127.0.0.1:5000/orders');
       setOrders(response.data || []); // Fallback to an empty array
       setErrorOrders('');
     } catch (error) {
@@ -108,11 +108,11 @@ const AdminDashboard = () => {
       setLoadingOrders(true);
       
       // Fetching basic order details
-      const orderResponse = await axios.get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}`);
+      const orderResponse = await axios.get(`http://127.0.0.1:5000/orders/${orderId}`);
       const orderData = orderResponse.data;
   
       // Fetching additional customization details
-      const customizationResponse = await axios.get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}/customization`);
+      const customizationResponse = await axios.get(`http://127.0.0.1:5000/orders/${orderId}/customization`);
       const customizationData = customizationResponse.data;
   
       // Combining basic order data with customization data
@@ -181,7 +181,7 @@ const AdminDashboard = () => {
       <tr>
         <th>Order ID</th>
         <th>User Name</th>
-        <th>Email</th>
+       
         <th>Phone</th>
         <th>Location</th>
         <th>Total Price</th>
@@ -193,7 +193,7 @@ const AdminDashboard = () => {
         <tr key={order.id}>
           <td>{order.id}</td>
           <td>{order.name}</td>
-          <td>{order.email}</td>
+         
           <td>{order.phone}</td>
           <td>{order.location}</td>
           <td>{order.total_price}</td>
@@ -218,34 +218,35 @@ const AdminDashboard = () => {
     ) : products.length > 0 ? (
       <table className="styled-table">
         <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Price</th>
-            <th>Stock</th>
-            <th>Image</th>
-            <th>Actions</th> {/* Added Actions Column */}
-          </tr>
+        <tr>
+        <th>Order ID</th>
+        <th>User Name</th>
+        <th>Phone</th>
+        <th>Location</th>
+        <th>Region</th> {/* Added Region Column */}
+        <th>Total Price</th>
+        <th>Actions</th>
+      </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
-            <tr key={product.id}>
-              <td>{product.id}</td>
-              <td>{product.name}</td>
-              <td>{product.description}</td>
-              <td>{product.price}</td>
-              <td>{product.stock}</td>
-              <td>
+        {products.map((order) => (
+  <tr key={order.id}>
+    <td>{order.id}</td>
+    <td>{order.name}</td>
+    <td>{order.phone}</td>
+    <td>{order.location}</td>
+    <td>{order.region}</td> {/* Display Region */}
+    <td>{order.total_price}</td>
+    <td>
                 <img
-                  src={product.image_url}
-                  alt={product.name}
-                  onClick={() => handleImageClick(product.image_url)}
+                  src={order.image_url}
+                  alt={order.name}
+                  onClick={() => handleImageClick(order.image_url)}
                   style={{ width: '50px', cursor: 'pointer' }}
                 />
               </td>
               <td> {/* ✅ Correct placement of delete button */}
-                <button onClick={() => handleDeleteProduct(product.id)} className="delete-btn">
+                <button onClick={() => handleDeleteProduct(order.id)} className="delete-btn">
                   🗑️ Delete
                 </button>
               </td>
@@ -259,14 +260,13 @@ const AdminDashboard = () => {
   </div>
 )}
 
-
 {selectedOrder && (
   <div className="order-details-modal" onClick={handleCloseModal}>
     <div className="order-details-content" onClick={(e) => e.stopPropagation()}>
       <span className="close-modal" onClick={handleCloseModal}>&times;</span>
       <h2>Order Details - Order ID: {selectedOrder.id}</h2>
       <p><strong>Customer:</strong> {selectedOrder.name}</p>
-      <p><strong>Email:</strong> {selectedOrder.email}</p>
+      <p><strong>Email:</strong> {selectedOrder.email || 'Not available'}</p> {/* Use fallback for missing email */}
       <p><strong>Phone:</strong> {selectedOrder.phone}</p>
       <p><strong>Location:</strong> {selectedOrder.location}</p>
       <p><strong>Total Price:</strong> {selectedOrder.total_price}</p>
@@ -279,6 +279,19 @@ const AdminDashboard = () => {
           <p><strong>Additional Features:</strong> {selectedOrder.customization.features || 'None'}</p>
         </div>
       )}
+
+      <h3>Order Items</h3>
+      <ul>
+        {selectedOrder.order_items?.map((item, index) => (
+          <li key={index}>
+            <strong>{item.product_name}</strong>
+            <p>Description: {item.description}</p>
+            <p>Quantity: {item.quantity}</p>
+            <p>Total Item Price: {item.total_item_price}</p>
+          </li>
+        ))}
+      </ul>
+    
 
       <h3>Order Items</h3>
       <ul>
