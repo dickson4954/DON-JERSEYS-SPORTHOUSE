@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      const response = await axios.get('https://donjerseyssporthouseserver-5-cmus.onrender.com/orders');
+      const response = await axios.get('http://127.0.0.1:5000/orders');
       setOrders(response.data || []); // Fallback to an empty array
       setErrorOrders('');
     } catch (error) {
@@ -98,17 +98,17 @@ const AdminDashboard = () => {
       setLoadingOrders(true);
       
       // Fetching basic order details
-      const orderResponse = await axios.get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}`);
+      const orderResponse = await axios.get(`http://127.0.0.1:5000/orders/${orderId}`);
       const orderData = orderResponse.data;
   
       // Fetching additional customization details
-      const customizationResponse = await axios.get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}/customization`);
-      const customizationData = customizationResponse.data;
+      // const customizationResponse = await axios.get(`http://127.0.0.1:5000/orders/${orderId}/customization`);
+      // const customizationData = customizationResponse.data;
   
       // Combining basic order data with customization data
       setSelectedOrder({
         ...orderData,
-        customization: customizationData || {}, // Assuming customization is an object
+        order: orderData || {}, // Assuming customization is an object
       });
   
       setErrorOrders('');

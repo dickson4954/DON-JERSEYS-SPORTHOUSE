@@ -13,6 +13,7 @@ import { CartProvider } from './CartContext';
 import Cart from './orders/Cart';
 import PaymentPage from './orders/paymentpage';
 import ShippingPage from './orders/ShippingPage';
+import Ondelivery from './orders/ondelivery';
 
 
 function App() {
@@ -68,6 +69,10 @@ function App() {
         <Route 
           path="/shipping-page" 
           element={<ShippingPage/>} 
+        />
+        <Route
+        path="/ondelivery"
+        element={<Ondelivery/>}
         />
          <Route path="/cart" element={<Cart />} />
       </Routes>

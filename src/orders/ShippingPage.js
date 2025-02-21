@@ -1,55 +1,35 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CartContext from "../CartContext";
-import PaymentPage from "./paymentpage";
 import ProductDetailsHeader from "../products/detail/ProductDetailsHeader";
+import axios from "axios";
 import { useLocation } from "react-router-dom";
-
 
 export default function ShippingPage() {
   const navigate = useNavigate();
-  const { cart } = useContext(CartContext); // Fetching cart from CartContext
+  const { cart, setCart } = useContext(CartContext); // Fetching cart and setCart from CartContext
   const [formData, setFormData] = useState({
     physicalAddress: "",
     city: "",
     county: "",
     postalCode: "",
     apartment: "",
-    phoneNumber: "", // Added for mobile money
-    region: "", // Added to store selected region
+    phoneNumber: "",
+    region: "",
   });
 
-  const [shippingFee, setShippingFee] = useState(0); // Set initial shipping fee to 0
+  const [shippingFee, setShippingFee] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
-  const [loading, setLoading] = useState(false); // For loading state during calculation
-  const [formErrors, setFormErrors] = useState({}); // To handle validation errors
+  const [loading, setLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
   const [itemTotal, setItemTotal] = useState(0);
-  const [customizationDiscount] = useState(0)
+  const [customizationDiscount] = useState(0);
   const [discountedTotal, setDiscountedTotal] = useState(0);
+  const [paymentPhoneNumber, setPaymentPhoneNumber] = useState("");
+  const [paymentStatus, setPaymentStatus] = useState(null); // To track payment and order status
 
-
-  const validateForm = () => {
-    let errors = {};
-    if (!formData.physicalAddress) errors.physicalAddress = "Physical address is required.";
-    if (!formData.city) errors.city = "City is required.";
-    if (!formData.county) errors.county = "County is required.";
-    if (!formData.postalCode) errors.postalCode = "Postal code is required.";
-    if (!formData.phoneNumber) errors.phoneNumber = "Phone number is required.";
-    if (!formData.region) errors.region = "Region must be selected.";
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0; // Return true if no errors
-  };
-  const calculateCustomizationCharge = (item) => {
-    let customizationCharge = 0;
-    if (item.customName) customizationCharge += 200;
-    if (item.customNumber) customizationCharge += 200;
-    if (item.badge) customizationCharge += 100;
-    return customizationCharge;
-  };
-  
-  
   const location = useLocation();
-  const formDataFromCart = location.state || {};  // Access the passed form data
+  const formDataFromCart = location.state || {};
 
   useEffect(() => {
     setFormData((prevState) => ({
@@ -59,37 +39,149 @@ export default function ShippingPage() {
       name: formDataFromCart.name || '', // Ensure name is set
       region: formDataFromCart.region || '',
     }));
-  
-    // Get the updated discounted total from the cart
-    if (formDataFromCart.discountedTotal) {
-      setDiscountedTotal(formDataFromCart.discountedTotal); // Set the discounted total if available
-      setTotalPrice(formDataFromCart.discountedTotal); // Set the total price to discounted total
-    } else {
-      calculateTotalPrice(shippingFee);  // Otherwise, recalculate the total
+  });
+
+
+  // Validate phone number for payment
+  const validatePhoneNumber = (number) => {
+    return /^07\d{8}$/.test(number);
+  };
+
+  // Handle payment submission
+  const handlePayment = async (event) => {
+    event.preventDefault();
+
+    if (!paymentPhoneNumber) {
+      alert("Please enter your phone number.");
+      return;
     }
-  }, [formDataFromCart]);
 
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === "region") {
-      calculateShippingFee(e.target.value);
+    if (!validatePhoneNumber(paymentPhoneNumber)) {
+      alert("Please enter a valid Kenyan phone number starting with 07.");
+      return;
     }
 
-    // When region changes, calculate the shipping fee
-    if (e.target.name === "region") {
-      calculateShippingFee(e.target.value);
+    if (totalPrice === undefined || totalPrice <= 0) {
+      alert("Total price is invalid. Please check your order.");
+      return;
+    }
+
+    setLoading(true);
+    setPaymentStatus(null); // Reset payment status
+
+    try {
+      // Step 1: Initiate payment
+      const paymentResponse = await axios.post("http://127.0.0.1:5000/pay", {
+        phone_number: paymentPhoneNumber,
+        amount: totalPrice,
+      });
+
+      // Check if payment initiation was successful
+      if (paymentResponse.data.CheckoutRequestID) {
+        setPaymentStatus("payment_success");
+
+        // Step 2: Place the order only if payment is successful
+        const orderResponse = await handlePayNow();
+
+        // Check if the order was successfully placed
+        if (orderResponse && orderResponse.success) {
+          setPaymentStatus("order_success");
+          // Reset form and cart after successful order placement
+          setFormData({
+            physicalAddress: "",
+            city: "",
+            county: "",
+            postalCode: "",
+            apartment: "",
+            phoneNumber: "",
+            region: "",
+          });
+          setPaymentPhoneNumber("");
+          setCart([]); // Clear the cart
+        } else {
+          setPaymentStatus("order_failed");
+        }
+      } else {
+        setPaymentStatus("payment_failed");
+      }
+    } catch (error) {
+      console.error("Error during payment or order placement:", error);
+      setPaymentStatus("error");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // Function to post order data to the /orders route
+  const handlePayNow = async () => {
+    const orderData = {
+      cart: cart.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        size: item.size || "N/A",
+        edition: item.edition || "N/A",
+        customName: item.customName || "",
+        customNumber: item.customNumber || "",
+        fontType: item.fontType || "",
+        badge: item.badge || "",
+        price: item.price,
+      })),
+      shipping_details: {
+        name: formData.name?.trim() || "",
+        phone: formData.phoneNumber?.trim() || "",
+        location: formData.physicalAddress?.trim() || "",
+        region: formData.region && formData.region.trim() ? formData.region.trim() : "N/A",
+        // county: formData.county?.trim() || "",
+        // postal_code: formData.postalCode?.trim() || "",
+        // apartment: formData.apartment?.trim() || "",
+      },
+      total_price: totalPrice,
+    };
+
+    console.log("Order Data to be Posted:", orderData);
+
+    try {
+      const response = await fetch("http://127.0.0.1:5000/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        console.log("Order placed successfully:", data);
+        return data; // Return the successful response
+      } else {
+        throw new Error(data.message || "Failed to place order.");
+      }
+    } catch (error) {
+      console.error("Error placing order:", error);
+      throw error; // Re-throw the error to handle it in the calling function
+    }
+  };
+
+  // Calculate customization charge for an item
+  const calculateCustomizationCharge = (item) => {
+    let customizationCharge = 0;
+    if (item.customName) customizationCharge += 200;
+    if (item.customNumber) customizationCharge += 200;
+    if (item.badge) customizationCharge += 100;
+    return customizationCharge;
+  };
+
+  // Calculate shipping fee based on region
   const calculateShippingFee = (region) => {
-    setLoading(true); // Show loading state while calculating shipping
-    let fee = 0; // Default shipping fee
-  
-    // Set the shipping fee based on selected region
+    let fee = 0;
     switch (region) {
       case "Nairobi CBD":
-        fee = 100;
+        fee = 0;
         break;
       case "Public Means":
         fee = 300;
@@ -116,126 +208,114 @@ export default function ShippingPage() {
         fee = 500;
         break;
       default:
-        fee = 0; // Default to 0 if no valid region selected
+        fee = 0;
     }
-  
-    setShippingFee(fee); // Set the shipping fee in the state
-    calculateTotalPrice(fee); // Recalculate total price after updating the shipping fee
+    setShippingFee(fee);
+    calculateTotalPrice(fee);
   };
+
+  // Calculate total price including shipping and packaging
   const calculateTotalPrice = (shippingFee) => {
     const itemTotal = cart.reduce((total, item) => {
-        const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
-        return total + itemPriceWithCustomization * item.quantity;
+      const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
+      return total + itemPriceWithCustomization * item.quantity;
     }, 0);
 
     const packagingFee = 50;
-    let finalTotal = discountedTotal || itemTotal; // Use discounted total if available
-
+    let finalTotal = discountedTotal || itemTotal;
     finalTotal += shippingFee + packagingFee;
 
-    // Apply customization discount (now 100)
     if (customizationDiscount) {
-        finalTotal -= customizationDiscount;  // Subtract the discount
+      finalTotal -= customizationDiscount;
     }
 
-    setItemTotal(itemTotal); // This should reflect the total before shipping and packaging
-    setTotalPrice(finalTotal); // Update the total price
+    setItemTotal(itemTotal);
+    setTotalPrice(finalTotal);
     setLoading(false);
-};
-  
-
-const handlePaymentSuccess = async (cartItems) => {
-  const orderData = {
-    cart: cartItems.map(item => ({
-      name: item.name,
-      quantity: item.quantity,
-      size: item.size || 'N/A',
-      edition: item.edition || 'N/A',
-      customName: item.customName || '',
-      customNumber: item.customNumber || '',
-      fontType: item.fontType || '',
-      badge: item.badge || '',
-      price: item.price
-    })),
-    delivery_details: {
-      name: formData.name,
-      phone: formData.phoneNumber,
-      location: formData.physicalAddress,
-      region: formData.region,
-    },
-    total_price: totalPrice,
   };
 
-  try {
-    const response = await fetch("https://donjerseyssporthouseserver-5-cmus.onrender.com/orders", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(orderData),
-    });
-
-    const data = await response.json();
-
-    if (data.success) {
-      alert("Order placed successfully!");
-      navigate("/confirmation", { state: { paymentSuccess: true, orderId: data.order_id } });
-    } else {
-      alert("Failed to place order: " + data.message);
+  // Handle form input changes
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (e.target.name === "region") {
+      calculateShippingFee(e.target.value);
     }
-  } catch (error) {
-    console.error("Error placing order:", error);
-    alert("An error occurred while placing the order.");
-  }
-};
+  };
 
+  // Validate form inputs
+  const validateForm = () => {
+    let errors = {};
+    if (!formData.physicalAddress) errors.physicalAddress = "Physical address is required.";
+    if (!formData.city) errors.city = "City is required.";
+    if (!formData.county) errors.county = "County is required.";
+    if (!formData.postalCode) errors.postalCode = "Postal code is required.";
+    if (!formData.phoneNumber) errors.phoneNumber = "Phone number is required.";
+    if (!formData.region) errors.region = "Region must be selected.";
+    if (!formData.apartment) errors.apartment = "Apartment is required.";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Initialize form data and calculate total price on component mount
+  useEffect(() => {
+    setFormData((prevState) => ({
+      ...prevState,
+      location: formDataFromCart?.location || "",
+      phone: formDataFromCart?.phonenumber || "",
+      name: formDataFromCart?.name || "",
+      region: formDataFromCart?.region || "",
+    }));
+
+    if (formDataFromCart?.discountedTotal) {
+      setDiscountedTotal(formDataFromCart.discountedTotal);
+      setTotalPrice(formDataFromCart.discountedTotal);
+    } else {
+      calculateTotalPrice(shippingFee);
+    }
+  }, [formDataFromCart, shippingFee]);
 
   return (
-    
     <>
-    
       <ProductDetailsHeader />
-      
       <div className="container-fluid mt-5 p-4" style={{ backgroundColor: "#ffecd1", minHeight: "100vh" }}>
         <div className="row">
-          {/* Shipping Address and Shipping Region Section (Left side) */}
+          {/* Shipping Address and Shipping Region Section */}
           <div className="col-12">
-            {/* Shipping Address Section */}
             <h2 className="text-2xl font-semibold mb-4" style={{ color: "#007bff" }}>Shipping Address</h2>
             <div className="row g-3">
-            <div className="col-12">
-  <input
-    type="text"
-    name="name" // Add name field
-    value={formData.name || ''} // Bind to formData.name
-    onChange={handleChange}
-    className="form-control p-3"
-    placeholder="Enter your name" // Placeholder for name
-  />
-</div>
-<div className="col-12">
-  <input
-    type="text"
-    name="location"
-    value={formData.physicalAddress}
-    onChange={handleChange}
-    className="form-control p-3"
-    placeholder="Enter your address" // Placeholder for address
-  />
-  {formErrors.physicalAddress && <small className="text-danger">{formErrors.physicalAddress}</small>}
-</div>
-<div className="col-12">
-  <input
-    type="text"
-    name="phone"
-    value={formData.phoneNumber}
-    onChange={handleChange}
-    className="form-control p-3"
-    placeholder="Enter your phone number" // Placeholder for phone number
-  />
-  {formErrors.phoneNumber && <small className="text-danger">{formErrors.phoneNumber}</small>}
-</div>
-<div className="col-6">
+              <div className="col-12">
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name || ""}
+                  onChange={handleChange}
+                  className="form-control p-3"
+                  placeholder="Enter your name"
+                />
+              </div>
+              <div className="col-12">
+                <input
+                  type="text"
+                  name="physicalAddress"
+                  value={formData.physicalAddress}
+                  onChange={handleChange}
+                  className="form-control p-3"
+                  placeholder="Enter your address"
+                />
+                {formErrors.physicalAddress && <small className="text-danger">{formErrors.physicalAddress}</small>}
+              </div>
+              <div className="col-12">
+                <input
+                  type="text"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
+                  className="form-control p-3"
+                  placeholder="Enter your phone number"
+                />
+                {formErrors.phoneNumber && <small className="text-danger">{formErrors.phoneNumber}</small>}
+              </div>
+              <div className="col-6">
                 <input
                   type="text"
                   name="apartment"
@@ -257,7 +337,7 @@ const handlePaymentSuccess = async (cartItems) => {
               value={formData.region}
             >
               <option value="">Select Region</option>
-              <option value="Nairobi CBD">Nairobi CBD / Town - KES 100</option>
+              <option value="Nairobi CBD">Nairobi CBD / Town - KES 0</option>
               <option value="Public Means">Public Means (Matatu) - KES 300</option>
               <option value="ZONE 1">ZONE 1: Upper-Hill, Statehouse, Parklands, Pangani, Mbagathi Way, Strathmore Uni - KES 300</option>
               <option value="ZONE 2">ZONE 2: Kileleshwa, Kilimani, Adams Arcade, Jamhuri, Hurlingham, Junction Mall, Westlands, Waiyaki Way, Lavington - KES 300</option>
@@ -273,104 +353,133 @@ const handlePaymentSuccess = async (cartItems) => {
             </select>
             {formErrors.region && <small className="text-danger">{formErrors.region}</small>}
           </div>
-          
-         
 
-         {/* Item Details and Summary Section */}
-<div className="p-3 col-12 col-md-6">
-  <div className="row">
-    {/* Item Details */}
-    <div className="col-md-12">
-      <div className="card p-3" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
-        <div className="card-body">
-          <h5 className="card-title" style={{ color: "#007bff" }}>Item Details</h5>
+          {/* Item Details and Summary Section */}
+          <div className="p-3 col-12 col-md-6">
+                <div className="row">
+                  {/* Item Details */}
+                  <div className="col-md-12">
+                    <div className="card p-3" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+                      <div className="card-body">
+                        <h5 className="card-title" style={{ color: "#007bff" }}>Item Details</h5>
 
-          {cart.map((item, index) => {
-            const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
-            const totalItemPrice = (item.quantity * itemPriceWithCustomization).toFixed(2);
+                        {cart.map((item, index) => {
+                          const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
+                          const totalItemPrice = (item.quantity * itemPriceWithCustomization).toFixed(2);
 
-            return (
-              <div key={index} className="d-flex flex-column flex-md-row align-items-center p-3 mb-3" style={{
-                border: "1px solid #ddd",
-                borderRadius: "10px",
-                background: "#f8f9fa",
-                overflow: "hidden",
-                width: "100%"
-              }}>
-                {/* Product Image */}
-                <div style={{ width: "80px", height: "80px", flexShrink: 0 }}>
-                  <img 
-                    src={item.image_url} 
-                    alt={item.name} 
-                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }} 
-                  />
-                </div>
+                          return (
+                            <div key={index} className="d-flex flex-column flex-md-row align-items-center p-3 mb-3" style={{
+                              border: "1px solid #ddd",
+                              borderRadius: "10px",
+                              background: "#f8f9fa",
+                              overflow: "hidden",
+                              width: "100%"
+                            }}>
+                              {/* Product Image */}
+                              <div style={{ width: "80px", height: "80px", flexShrink: 0 }}>
+                                <img 
+                                  src={item.image_url} 
+                                  alt={item.name} 
+                                  style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }} 
+                                />
+                              </div>
 
-                {/* Product Details */}
-                <div className="px-3 flex-grow-1 text-center text-md-left w-100">
-                  <strong>{item.name}</strong>
-                  <p className="mb-1">Quantity: {item.quantity}</p>
-                  <p className="mb-1">Size: {item.size || 'N/A'}</p>
-                  <p className="mb-1">Edition: {item.edition || 'N/A'}</p>
+                              {/* Product Details */}
+                              <div className="px-3 flex-grow-1 text-center text-md-left w-100">
+                                <strong>{item.name}</strong>
+                                <p className="mb-1">Quantity: {item.quantity}</p>
+                                <p className="mb-1">Size: {item.size || 'N/A'}</p>
+                                <p className="mb-1">Edition: {item.edition || 'N/A'}</p>
 
-                  {/* Customization Dropdown */}
-                  <div className="dropdown">
-                    <button 
-                      className="btn btn-outline-secondary btn-sm dropdown-toggle"
-                      type="button"
-                      data-bs-toggle="dropdown">
-                      More Details
-                    </button>
-                    <div className="dropdown-menu p-2">
-                      {item.customName && <p className="mb-1">Custom Name: {item.customName}</p>}
-                      {item.customNumber && <p className="mb-1">Custom Number: {item.customNumber}</p>}
-                      {item.fontType && <p className="mb-1">Font Type: {item.fontType}</p>}
-                      {item.badge && <p className="mb-1">Badge: {item.badge}</p>}
+                                {/* Customization Dropdown */}
+                                <div className="dropdown">
+                                  <button 
+                                    className="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                    type="button"
+                                    data-bs-toggle="dropdown">
+                                    More Details
+                                  </button>
+                                  <div className="dropdown-menu p-2">
+                                    {item.customName && <p className="mb-1">Custom Name: {item.customName}</p>}
+                                    {item.customNumber && <p className="mb-1">Custom Number: {item.customNumber}</p>}
+                                    {item.fontType && <p className="mb-1">Font Type: {item.fontType}</p>}
+                                    {item.badge && <p className="mb-1">Badge: {item.badge}</p>}
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Total Price Section */}
+                              <div className="text-center text-md-right w-100 mt-2 font-weight-bold">
+                                <p className="mb-0 text-muted">
+                                  Total: KES {totalItemPrice} 
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Total Price Section */}
-                <div className="text-center text-md-right w-100 mt-2 font-weight-bold">
-                  <p className="mb-0 text-muted">
-                    Total: KES {totalItemPrice} 
-                  </p>
-                </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-                      
-                    
-                  
-         
-  {/* Summary Section */}
-  <div className="col-12 mt-4">
-      <div className="card" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
-        <div className="card-body text-center text-md-left">
-          <h5 className="card-title" style={{ color: "#007bff" }}>Summary</h5>
-          <p>Shipping Fee: KES {shippingFee}</p>
-          <p>Packaging Fee: KES 50</p>
-          <p>Total: KES {totalPrice.toFixed(2)}</p>
-        </div>
-      </div>
-    </div>
+          {/* Summary Section */}
+          <div className="col-12 mt-4">
+            <div className="card" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+              <div className="card-body text-center text-md-left">
+                <h5 className="card-title" style={{ color: "#007bff" }}>Summary</h5>
+                <p>Shipping Fee: KES {shippingFee}</p>
+                <p>Packaging Fee: KES 50</p>
+                <p>Total: KES {totalPrice.toFixed(2)}</p>
+              </div>
             </div>
           </div>
-        
+        </div>
 
-        {/* Add Payment Section below the form */}
-        <PaymentPage
-          totalPrice={totalPrice}
-          cartItems={cart}
-          onPaymentSuccess={handlePaymentSuccess}
-        />
-     
+        {/* Payment Section */}
+        <div className="mt-4">
+          <h3 className="text-lg font-medium" style={{ color: "#007bff" }}>Payment</h3>
+          <form onSubmit={handlePayment}>
+            <input
+              type="text"
+              placeholder="Enter your phone number (07...)"
+              value={paymentPhoneNumber}
+              onChange={(e) => setPaymentPhoneNumber(e.target.value)}
+              className="form-control p-3 mb-3"
+            />
+            <button type="submit" className="btn btn-primary w-100 p-3" disabled={loading}>
+              {loading ? "Processing..." : "Pay Now"}
+            </button>
+          </form>
+        </div>
+
+        {/* Payment Status Messages */}
+        {paymentStatus === "payment_success" && (
+          <div className="alert alert-success mt-4">
+            Payment initiated successfully! Processing your order...
+          </div>
+        )}
+        {paymentStatus === "order_success" && (
+          <div className="alert alert-success mt-4">
+            Order placed successfully! Thank you for your purchase.
+          </div>
+        )}
+        {paymentStatus === "payment_failed" && (
+          <div className="alert alert-danger mt-4">
+            Payment initiation failed. Please try again.
+          </div>
+        )}
+        {paymentStatus === "order_failed" && (
+          <div className="alert alert-danger mt-4">
+            Failed to place order. Please contact support.
+          </div>
+        )}
+        {paymentStatus === "error" && (
+          <div className="alert alert-danger mt-4">
+            An error occurred. Please try again or contact support.
+          </div>
+        )}
+      </div>
     </>
   );
 }
