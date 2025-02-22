@@ -106,35 +106,30 @@ function ProductDetailsHeader() {
         </Link>
 
         <div className="ms-auto">
-          {/* Always show the back button on the ShippingPage */}
-          {location.pathname === "/shipping-page" ? (
-            <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
-              <FontAwesomeIcon icon={['fas', 'arrow-left']} />
-              Back
-            </button>
-          ) : (
-            <>
-              {showBackButton && (
-                <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
-                  <FontAwesomeIcon icon={['fas', 'arrow-left']} />
-                  Back
-                </button>
-              )}
+  {/* Always show the back button on the ShippingPage */}
+  {location.pathname === "/shipping-page" ? (
+    <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
+      <FontAwesomeIcon icon={['fas', 'arrow-left']} />
+      Back
+    </button>
+  ) : (
+    showBackButton && (
+      <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
+        <FontAwesomeIcon icon={['fas', 'arrow-left']} />
+        Back
+      </button>
+    )
+  )}
 
-              {/* Show the cart button only when NOT on the shipping page */}
-              <button
-                type="button"
-                className="btn btn-outline-dark"
-                onClick={() => navigate("/cart")}
-              >
-                <FontAwesomeIcon icon={["fas", "shopping-cart"]} />
-                <span className="ms-3 badge rounded-pill bg-dark">
-                  {cart.length || 0}
-                </span>
-              </button>
-            </>
-          )}
-        </div>
+  {/* Always show the cart button */}
+  <button type="button" className="btn btn-outline-dark" onClick={() => navigate("/cart")}>
+    <FontAwesomeIcon icon={["fas", "shopping-cart"]} />
+    <span className="ms-3 badge rounded-pill bg-dark">
+      {cart.length || 0}
+    </span>
+  </button>
+</div>
+
       </div>
     </nav>
 

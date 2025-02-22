@@ -23,6 +23,7 @@ export default function ShippingPage() {
   const [discountedTotal, setDiscountedTotal] = useState(0);
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState("");
   const [paymentStatus, setPaymentStatus] = useState(null); // To track payment and order status
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const location = useLocation();
   const formDataFromCart = location.state || {};
@@ -35,8 +36,7 @@ export default function ShippingPage() {
       name: formDataFromCart.name || '', // Ensure name is set
       region: formDataFromCart.region || '',
     }));
-  });
-
+  }, [formDataFromCart]);
 
   // Validate phone number for payment
   const validatePhoneNumber = (number) => {
@@ -75,6 +75,7 @@ export default function ShippingPage() {
       // Check if payment initiation was successful
       if (paymentResponse.data.CheckoutRequestID) {
         setPaymentStatus("payment_success");
+        alert("Payment has been initiated. Check your phone to complete the payment.");
 
         // Step 2: Place the order only if payment is successful
         const orderResponse = await handlePayNow();
@@ -82,7 +83,7 @@ export default function ShippingPage() {
         // Check if the order was successfully placed
         if (orderResponse && orderResponse.success) {
           setPaymentStatus("order_success");
-          // Reset form and cart after successful order placement
+          setShowSuccessMessage(true); // Show success message
           setFormData({
             physicalAddress: "",
             phoneNumber: "",
@@ -123,11 +124,8 @@ export default function ShippingPage() {
         phone: formData.phoneNumber?.trim() || "",
         location: formData.physicalAddress?.trim() || "",
         region: formData.region && formData.region.trim() ? formData.region.trim() : "N/A",
-        // county: formData.county?.trim() || "",
-        // postal_code: formData.postalCode?.trim() || "",
-        // apartment: formData.apartment?.trim() || "",
       },
-      total_price: totalPrice,
+      total_price: totalPrice, // Ensure this is calculated correctly
     };
 
     console.log("Order Data to be Posted:", orderData);
@@ -142,17 +140,14 @@ export default function ShippingPage() {
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Order API Error:", errorData);
         throw new Error(`Server Error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
-
-      if (data.success) {
-        console.log("Order placed successfully:", data);
-        return data; // Return the successful response
-      } else {
-        throw new Error(data.message || "Failed to place order.");
-      }
+      console.log("Order placed successfully:", data);
+      return data; // Return the successful response
     } catch (error) {
       console.error("Error placing order:", error);
       throw error; // Re-throw the error to handle it in the calling function
@@ -238,10 +233,8 @@ export default function ShippingPage() {
   const validateForm = () => {
     let errors = {};
     if (!formData.physicalAddress) errors.physicalAddress = "Physical address is required.";
-   
     if (!formData.phoneNumber) errors.phoneNumber = "Phone number is required.";
     if (!formData.region) errors.region = "Region must be selected.";
-    if (!formData.apartment) errors.apartment = "Apartment is required.";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -346,72 +339,63 @@ export default function ShippingPage() {
 
           {/* Item Details and Summary Section */}
           <div className="p-3 col-12 col-md-6">
-                <div className="row">
-                  {/* Item Details */}
-                  <div className="col-md-12">
-                    <div className="card p-3" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
-                      <div className="card-body">
-                        <h5 className="card-title" style={{ color: "#007bff" }}>Item Details</h5>
+            <div className="row">
+              <div className="col-md-12">
+                <div className="card p-3" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
+                  <div className="card-body">
+                    <h5 className="card-title" style={{ color: "#007bff" }}>Item Details</h5>
+                    {cart.map((item, index) => {
+                      const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
+                      const totalItemPrice = (item.quantity * itemPriceWithCustomization).toFixed(2);
 
-                        {cart.map((item, index) => {
-                          const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
-                          const totalItemPrice = (item.quantity * itemPriceWithCustomization).toFixed(2);
-
-                          return (
-                            <div key={index} className="d-flex flex-column flex-md-row align-items-center p-3 mb-3" style={{
-                              border: "1px solid #ddd",
-                              borderRadius: "10px",
-                              background: "#f8f9fa",
-                              overflow: "hidden",
-                              width: "100%"
-                            }}>
-                              {/* Product Image */}
-                              <div style={{ width: "80px", height: "80px", flexShrink: 0 }}>
-                                <img 
-                                  src={item.image_url} 
-                                  alt={item.name} 
-                                  style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }} 
-                                />
-                              </div>
-
-                              {/* Product Details */}
-                              <div className="px-3 flex-grow-1 text-center text-md-left w-100">
-                                <strong>{item.name}</strong>
-                                <p className="mb-1">Quantity: {item.quantity}</p>
-                                <p className="mb-1">Size: {item.size || 'N/A'}</p>
-                                <p className="mb-1">Edition: {item.edition || 'N/A'}</p>
-
-                                {/* Customization Dropdown */}
-                                <div className="dropdown">
-                                  <button 
-                                    className="btn btn-outline-secondary btn-sm dropdown-toggle"
-                                    type="button"
-                                    data-bs-toggle="dropdown">
-                                    More Details
-                                  </button>
-                                  <div className="dropdown-menu p-2">
-                                    {item.customName && <p className="mb-1">Custom Name: {item.customName}</p>}
-                                    {item.customNumber && <p className="mb-1">Custom Number: {item.customNumber}</p>}
-                                    {item.fontType && <p className="mb-1">Font Type: {item.fontType}</p>}
-                                    {item.badge && <p className="mb-1">Badge: {item.badge}</p>}
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* Total Price Section */}
-                              <div className="text-center text-md-right w-100 mt-2 font-weight-bold">
-                                <p className="mb-0 text-muted">
-                                  Total: KES {totalItemPrice} 
-                                </p>
+                      return (
+                        <div key={index} className="d-flex flex-column flex-md-row align-items-center p-3 mb-3" style={{
+                          border: "1px solid #ddd",
+                          borderRadius: "10px",
+                          background: "#f8f9fa",
+                          overflow: "hidden",
+                          width: "100%"
+                        }}>
+                          <div style={{ width: "80px", height: "80px", flexShrink: 0 }}>
+                            <img 
+                              src={item.image_url} 
+                              alt={item.name} 
+                              style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }} 
+                            />
+                          </div>
+                          <div className="px-3 flex-grow-1 text-center text-md-left w-100">
+                            <strong>{item.name}</strong>
+                            <p className="mb-1">Quantity: {item.quantity}</p>
+                            <p className="mb-1">Size: {item.size || 'N/A'}</p>
+                            <p className="mb-1">Edition: {item.edition || 'N/A'}</p>
+                            <div className="dropdown">
+                              <button 
+                                className="btn btn-outline-secondary btn-sm dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown">
+                                More Details
+                              </button>
+                              <div className="dropdown-menu p-2">
+                                {item.customName && <p className="mb-1">Custom Name: {item.customName}</p>}
+                                {item.customNumber && <p className="mb-1">Custom Number: {item.customNumber}</p>}
+                                {item.fontType && <p className="mb-1">Font Type: {item.fontType}</p>}
+                                {item.badge && <p className="mb-1">Badge: {item.badge}</p>}
                               </div>
                             </div>
-                          );
-                        })}
-                      </div>
-                    </div>
+                          </div>
+                          <div className="text-center text-md-right w-100 mt-2 font-weight-bold">
+                            <p className="mb-0 text-muted">
+                              Total: KES {totalItemPrice} 
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
 
           {/* Summary Section */}
           <div className="col-12 mt-4">
@@ -446,12 +430,12 @@ export default function ShippingPage() {
         {/* Payment Status Messages */}
         {paymentStatus === "payment_success" && (
           <div className="alert alert-success mt-4">
-            Payment initiated successfully! Processing your order...
+            Payment initiated successfully! Check your phone to complete the payment.
           </div>
         )}
-        {paymentStatus === "order_success" && (
+        {showSuccessMessage && (
           <div className="alert alert-success mt-4">
-            Order placed successfully! Thank you for your purchase.
+            <span className="mr-2">✓</span> Payment successful! Your order has been placed and will be delivered in 1 day.
           </div>
         )}
         {paymentStatus === "payment_failed" && (
