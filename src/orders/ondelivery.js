@@ -3,19 +3,18 @@ import { useNavigate } from "react-router-dom";
 import CartContext from "../CartContext";
 import ProductDetailsHeader from "../products/detail/ProductDetailsHeader";
 import { useLocation } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 export default function Ondelivery() {
   const navigate = useNavigate();
   const { cart, setCart } = useContext(CartContext);
   const [formData, setFormData] = useState({
     physicalAddress: "",
-    city: "",
-    county: "",
-    postalCode: "",
-    apartment: "",
     phoneNumber: "",
     region: "",
+    name: "",
   });
+  
 
   const [shippingFee, setShippingFee] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -37,6 +36,12 @@ export default function Ondelivery() {
 
   // Function to post order data to the /orders route
   const handleOrderNow = async () => {
+    // Form validation to ensure required fields are filled
+    if (!formData.region || !formData.name || !formData.phoneNumber || !formData.physicalAddress) {
+      alert("Please fill in all required fields before placing the order.");
+      return;
+    }
+
     setLoading(true);
     setOrderStatus(null);
 
@@ -51,6 +56,7 @@ export default function Ondelivery() {
         fontType: item.fontType || "",
         badge: item.badge || "",
         price: item.price,
+        product_variant_id: Number(item.product_variant_id) || 1, // Ensure numeric ID
       })),
       shipping_details: {
         name: formData.name?.trim() || "",
@@ -60,6 +66,7 @@ export default function Ondelivery() {
       },
       total_price: totalPrice,
     };
+    
 
     console.log("Order Data to be Posted:", orderData);
 
@@ -71,25 +78,33 @@ export default function Ondelivery() {
         },
         body: JSON.stringify(orderData),
       });
-
+      
+      const data = await response.json();
+      console.log('Response Data:', data); // Log the response from the server
+      
       if (!response.ok) {
         throw new Error(`Server Error: ${response.status} ${response.statusText}`);
       }
-
-      const data = await response.json();
-
+     
       if (data.success) {
         console.log("Order placed successfully:", data);
         setOrderStatus("success");
+
+        // Show SweetAlert after successful order placement
+        Swal.fire({
+          icon: 'success',
+          title: 'Order placed!',
+          text: 'Your order will arrive in 1 business day. Payment will be collected upon delivery.',
+          confirmButtonText: 'OK',
+          timer: 9000, // Optional: close after 9 seconds
+        });
+
         // Reset form and cart after successful order placement
         setFormData({
           physicalAddress: "",
-          city: "",
-          county: "",
-          postalCode: "",
-          apartment: "",
           phoneNumber: "",
           region: "",
+          name: "",
         });
         setCart([]); // Clear the cart
       } else {
@@ -99,6 +114,14 @@ export default function Ondelivery() {
     } catch (error) {
       console.error("Error placing order:", error);
       setOrderStatus("error");
+
+      // Show SweetAlert for errors
+      Swal.fire({
+        icon: 'error',
+        title: 'An error occurred',
+        text: `Error: ${error.message}`,
+        confirmButtonText: 'OK',
+      });
     } finally {
       setLoading(false);
     }
@@ -186,7 +209,6 @@ export default function Ondelivery() {
 
     calculateTotalPrice(shippingFee);
   }, [formDataFromCart, shippingFee]);
-
   return (
     <>
       <ProductDetailsHeader />
@@ -358,22 +380,19 @@ export default function Ondelivery() {
           </button>
         </div>
 
-        {/* Order Status Messages */}
-        {orderStatus === "success" && (
-          <div className="alert alert-success mt-4 text-center">
-            ✅ Order placed successfully! Thank you for your purchase.
-          </div>
-        )}
-        {orderStatus === "failed" && (
-          <div className="alert alert-danger mt-4 text-center">
-            ❌ Failed to place order. Please contact support.
-          </div>
-        )}
-        {orderStatus === "error" && (
-          <div className="alert alert-danger mt-4 text-center">
-            ❌ An error occurred. Please try again or contact support.
-          </div>
-        )}
+       {/* Order Status Messages */}
+{orderStatus === "success" && (
+  <div className="alert alert-success mt-4 text-center">
+    ✅ Order placed successfully! Thank you for your purchase.
+  </div>
+)}
+{orderStatus === "failed" && (
+  <div className="alert alert-danger mt-4 text-center">
+    ❌ Failed to place order. Please contact support.
+  </div>
+)}
+
+       
       </div>
     </>
   );

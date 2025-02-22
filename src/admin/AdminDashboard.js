@@ -89,28 +89,46 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchOrders();
   }, []);
-  const handleDeleteProduct = async (productId) => {
-    // function logic
-  };
   
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        await axios.delete(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${productId}`);
+        alert("Product deleted successfully!");
+        setProducts(products.filter((product) => product.id !== productId)); // Update UI
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product. Please try again.");
+      }
+    }
+  };
+  const handleDeleteOrder = async (orderId) => {
+    try {
+      const confirmation = window.confirm("Are you sure you want to delete this order?");
+      if (!confirmation) return;
+  
+      const response = await axios.delete(`http://127.0.0.1:5000/orders/${orderId}`);
+      if (response.status === 200) {
+        setOrders(orders.filter(order => order.id !== orderId)); // Update state to reflect deletion
+        setErrorOrders('');
+      } else {
+        setErrorOrders('Failed to delete order. Please try again.');
+        console.log(`Delete response status: ${response.status}`);
+      }
+    } catch (error) {
+      console.error('Error deleting order:', error);
+      setErrorOrders('Failed to delete order. Please try again.');
+    }
+  };
   const handleViewOrder = async (orderId) => {
     try {
       setLoadingOrders(true);
-      
-      // Fetching basic order details
       const orderResponse = await axios.get(`http://127.0.0.1:5000/orders/${orderId}`);
       const orderData = orderResponse.data;
   
-      // Fetching additional customization details
-      // const customizationResponse = await axios.get(`http://127.0.0.1:5000/orders/${orderId}/customization`);
-      // const customizationData = customizationResponse.data;
+      console.log("Fetched order data:", orderData);  // Log the response data
   
-      // Combining basic order data with customization data
-      setSelectedOrder({
-        ...orderData,
-        order: orderData || {}, // Assuming customization is an object
-      });
-  
+      setSelectedOrder(orderData);
       setErrorOrders('');
     } catch (error) {
       console.error('Error fetching order details:', error);
@@ -120,6 +138,21 @@ const AdminDashboard = () => {
     }
   };
   
+  const renderOrderItems = () => {
+    return selectedOrder?.items?.map((item, index) => (
+      <div key={index}>
+        <h4>Product Name: {item.product_name}</h4>
+        <p>Description: {item.description}</p>
+        <p>Quantity: {item.quantity}</p>
+        <p>Unit Price: {item.unit_price}</p>
+        <p>Size: {item.size || 'N/A'}</p>  {/* Display size */}
+        <p>Custom Name: {item.custom_name || 'N/A'}</p>  {/* Display custom name */}
+        <p>Custom Number: {item.custom_number || 'N/A'}</p>  {/* Display custom number */}
+        <p>Badge: {item.badge || 'N/A'}</p>  {/* Display badge */}
+        <p>Font Type: {item.font_type || 'N/A'}</p>  {/* Display font type */}
+      </div>
+    ));
+  };
   
   const handleCloseModal = () => setSelectedOrder(null);
 
@@ -159,7 +192,8 @@ const AdminDashboard = () => {
           )}
         </div>
 
-        {/* Orders Table */}
+       
+
 <h2>Orders</h2>
 {loadingOrders ? (
   <p>Loading orders...</p>
@@ -189,6 +223,9 @@ const AdminDashboard = () => {
           <td>{order.total_price}</td>
           <td>
             <button onClick={() => handleViewOrder(order.id)}>View</button>
+            {/* <button onClick={() => handleDeleteOrder(order.id)} className="delete-btn">
+              🗑️ Delete
+            </button> */}
           </td>
         </tr>
       ))}
@@ -248,42 +285,29 @@ const AdminDashboard = () => {
     )}
   </div>
 )}
-
-
 {selectedOrder && (
-  <div className="order-details-modal" onClick={handleCloseModal}>
-    <div className="order-details-content" onClick={(e) => e.stopPropagation()}>
-      <span className="close-modal" onClick={handleCloseModal}>&times;</span>
-      <h2>Order Details - Order ID: {selectedOrder.id}</h2>
-      <p><strong>Customer:</strong> {selectedOrder.name}</p>
-      <p><strong>Email:</strong> {selectedOrder.email}</p>
-      <p><strong>Phone:</strong> {selectedOrder.phone}</p>
-      <p><strong>Location:</strong> {selectedOrder.location}</p>
-      <p><strong>Total Price:</strong> {selectedOrder.total_price}</p>
+        <div className="order-details-modal" onClick={handleCloseModal}>
+          <div className="order-details-content" onClick={(e) => e.stopPropagation()}>
+            <span className="close-modal" onClick={handleCloseModal}>&times;</span>
+            <h2>Order Details - Order ID: {selectedOrder.id}</h2>
+            <p><strong>Customer:</strong> {selectedOrder.name}</p>
+            <p><strong>Email:</strong> {selectedOrder.email || 'N/A'}</p>
+            <p><strong>Phone:</strong> {selectedOrder.phone}</p>
+            <p><strong>Location:</strong> {selectedOrder.location}</p>
+            <p><strong>Total Price:</strong> {selectedOrder.total_price}</p>
 
-      {/* Displaying Size Customization or Other Features */}
-      {selectedOrder.customization && (
-        <div>
-          <h3>Customization Details</h3>
-          <p><strong>Size:</strong> {selectedOrder.customization.size || 'Not specified'}</p>
-          <p><strong>Additional Features:</strong> {selectedOrder.customization.features || 'None'}</p>
+            {/* Render Customization Details */}
+            {selectedOrder.items && selectedOrder.items.length > 0 && (
+              <div>
+                <h3>Customization Details</h3>
+                {renderOrderItems()}
+              </div>
+            )}
+          </div>
         </div>
       )}
+    
 
-      <h3>Order Items</h3>
-      <ul>
-        {selectedOrder.order_items?.map((item, index) => (
-          <li key={index}>
-            <strong>{item.product_name}</strong>
-            <p>Description: {item.description}</p>
-            <p>Quantity: {item.quantity}</p>
-            <p>Total Item Price: {item.total_item_price}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
-  </div>
-)}
 
       
 

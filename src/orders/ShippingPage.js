@@ -10,10 +10,6 @@ export default function ShippingPage() {
   const { cart, setCart } = useContext(CartContext); // Fetching cart and setCart from CartContext
   const [formData, setFormData] = useState({
     physicalAddress: "",
-    city: "",
-    county: "",
-    postalCode: "",
-    apartment: "",
     phoneNumber: "",
     region: "",
   });
@@ -89,10 +85,6 @@ export default function ShippingPage() {
           // Reset form and cart after successful order placement
           setFormData({
             physicalAddress: "",
-            city: "",
-            county: "",
-            postalCode: "",
-            apartment: "",
             phoneNumber: "",
             region: "",
           });
@@ -246,9 +238,7 @@ export default function ShippingPage() {
   const validateForm = () => {
     let errors = {};
     if (!formData.physicalAddress) errors.physicalAddress = "Physical address is required.";
-    if (!formData.city) errors.city = "City is required.";
-    if (!formData.county) errors.county = "County is required.";
-    if (!formData.postalCode) errors.postalCode = "Postal code is required.";
+   
     if (!formData.phoneNumber) errors.phoneNumber = "Phone number is required.";
     if (!formData.region) errors.region = "Region must be selected.";
     if (!formData.apartment) errors.apartment = "Apartment is required.";
