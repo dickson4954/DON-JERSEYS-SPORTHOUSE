@@ -5,6 +5,7 @@ import ProductDetailsHeader from "../products/detail/ProductDetailsHeader";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 
+
 export default function ShippingPage() {
   const navigate = useNavigate();
   const { cart, setCart } = useContext(CartContext); // Fetching cart and setCart from CartContext
@@ -12,7 +13,11 @@ export default function ShippingPage() {
     physicalAddress: "",
     phoneNumber: "",
     region: "",
+    id_number: "", // Add this
+    name: "", // Ensure name is included
+    apartment: "", // Ensure apartment is included
   });
+
 
   const [shippingFee, setShippingFee] = useState(0);
   const [totalPrice, setTotalPrice] = useState(0);
@@ -23,47 +28,66 @@ export default function ShippingPage() {
   const [discountedTotal, setDiscountedTotal] = useState(0);
   const [paymentPhoneNumber, setPaymentPhoneNumber] = useState("");
   const [paymentStatus, setPaymentStatus] = useState(null); // To track payment and order status
-  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
 
   const location = useLocation();
   const formDataFromCart = location.state || {};
 
+
+  // Initialize form data and calculate total price on component mount
   useEffect(() => {
     setFormData((prevState) => ({
       ...prevState,
-      physicalAddress: formDataFromCart.location || '',
-      phoneNumber: formDataFromCart.phone || '',
-      name: formDataFromCart.name || '', // Ensure name is set
-      region: formDataFromCart.region || '',
+      physicalAddress: formDataFromCart.location || "",
+      phoneNumber: formDataFromCart.phone || "",
+      name: formDataFromCart.name || "",
+      region: formDataFromCart.region || "",
+      id_number: formDataFromCart.id_number || "",
+      apartment: formDataFromCart.apartment || "",
     }));
-  }, [formDataFromCart]);
+
+
+    if (formDataFromCart?.discountedTotal) {
+      setDiscountedTotal(formDataFromCart.discountedTotal);
+      setTotalPrice(formDataFromCart.discountedTotal);
+    } else {
+      calculateTotalPrice(shippingFee);
+    }
+  }, [formDataFromCart, shippingFee]);
+
 
   // Validate phone number for payment
   const validatePhoneNumber = (number) => {
     return /^07\d{8}$/.test(number);
   };
 
+
   // Handle payment submission
   const handlePayment = async (event) => {
     event.preventDefault();
+
 
     if (!paymentPhoneNumber) {
       alert("Please enter your phone number.");
       return;
     }
 
+
     if (!validatePhoneNumber(paymentPhoneNumber)) {
       alert("Please enter a valid Kenyan phone number starting with 07.");
       return;
     }
+
 
     if (totalPrice === undefined || totalPrice <= 0) {
       alert("Total price is invalid. Please check your order.");
       return;
     }
 
+
     setLoading(true);
     setPaymentStatus(null); // Reset payment status
+
 
     try {
       // Step 1: Initiate payment
@@ -72,22 +96,27 @@ export default function ShippingPage() {
         amount: totalPrice,
       });
 
+
       // Check if payment initiation was successful
       if (paymentResponse.data.CheckoutRequestID) {
         setPaymentStatus("payment_success");
-        alert("Payment has been initiated. Check your phone to complete the payment.");
+
 
         // Step 2: Place the order only if payment is successful
         const orderResponse = await handlePayNow();
 
+
         // Check if the order was successfully placed
         if (orderResponse && orderResponse.success) {
           setPaymentStatus("order_success");
-          setShowSuccessMessage(true); // Show success message
+          // Reset form and cart after successful order placement
           setFormData({
             physicalAddress: "",
             phoneNumber: "",
             region: "",
+            id_number: "",
+            name: "",
+            apartment: "",
           });
           setPaymentPhoneNumber("");
           setCart([]); // Clear the cart
@@ -105,8 +134,21 @@ export default function ShippingPage() {
     }
   };
 
+
   // Function to post order data to the /orders route
   const handlePayNow = async () => {
+    // Ensure cart is not empty
+    if (!cart || cart.length === 0) {
+      console.error("Cart is empty. Cannot place order.");
+      throw new Error("Cart is empty. Cannot place order.");
+    }
+  
+    // Ensure formData is not empty
+    if (!formData || Object.keys(formData).length === 0) {
+      console.error("Form data is empty. Cannot place order.");
+      throw new Error("Form data is empty. Cannot place order.");
+    }
+  
     const orderData = {
       cart: cart.map((item) => ({
         name: item.name,
@@ -124,12 +166,13 @@ export default function ShippingPage() {
         phone: formData.phoneNumber?.trim() || "",
         location: formData.physicalAddress?.trim() || "",
         region: formData.region && formData.region.trim() ? formData.region.trim() : "N/A",
+        id_number: formData.id_number?.trim() || "",
       },
-      total_price: totalPrice, // Ensure this is calculated correctly
+      total_price: totalPrice,
     };
-
+  
     console.log("Order Data to be Posted:", orderData);
-
+  
     try {
       const response = await fetch("http://127.0.0.1:5000/orders", {
         method: "POST",
@@ -138,21 +181,26 @@ export default function ShippingPage() {
         },
         body: JSON.stringify(orderData),
       });
-
+  
       if (!response.ok) {
-        const errorData = await response.json();
-        console.error("Order API Error:", errorData);
-        throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        throw new Error(`Server Error: ${response.status} ${response.statusText} - ${errorText}`);
       }
-
+  
       const data = await response.json();
-      console.log("Order placed successfully:", data);
-      return data; // Return the successful response
+  
+      if (data.success) {
+        console.log("Order placed successfully:", data);
+        return data; // Return the successful response
+      } else {
+        throw new Error(data.message || "Failed to place order.");
+      }
     } catch (error) {
       console.error("Error placing order:", error);
       throw error; // Re-throw the error to handle it in the calling function
     }
   };
+
 
   // Calculate customization charge for an item
   const calculateCustomizationCharge = (item) => {
@@ -162,6 +210,7 @@ export default function ShippingPage() {
     if (item.badge) customizationCharge += 100;
     return customizationCharge;
   };
+
 
   // Calculate shipping fee based on region
   const calculateShippingFee = (region) => {
@@ -201,6 +250,7 @@ export default function ShippingPage() {
     calculateTotalPrice(fee);
   };
 
+
   // Calculate total price including shipping and packaging
   const calculateTotalPrice = (shippingFee) => {
     const itemTotal = cart.reduce((total, item) => {
@@ -208,26 +258,35 @@ export default function ShippingPage() {
       return total + itemPriceWithCustomization * item.quantity;
     }, 0);
 
+
     const packagingFee = 50;
     let finalTotal = discountedTotal || itemTotal;
     finalTotal += shippingFee + packagingFee;
 
+
     if (customizationDiscount) {
       finalTotal -= customizationDiscount;
     }
+
 
     setItemTotal(itemTotal);
     setTotalPrice(finalTotal);
     setLoading(false);
   };
 
+
   // Handle form input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === "region") {
-      calculateShippingFee(e.target.value);
+    const { name, value } = e.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    if (name === "region") {
+      calculateShippingFee(value);
     }
   };
+
 
   // Validate form inputs
   const validateForm = () => {
@@ -235,27 +294,11 @@ export default function ShippingPage() {
     if (!formData.physicalAddress) errors.physicalAddress = "Physical address is required.";
     if (!formData.phoneNumber) errors.phoneNumber = "Phone number is required.";
     if (!formData.region) errors.region = "Region must be selected.";
+    if (!formData.apartment) errors.apartment = "Apartment is required.";
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Initialize form data and calculate total price on component mount
-  useEffect(() => {
-    setFormData((prevState) => ({
-      ...prevState,
-      location: formDataFromCart?.location || "",
-      phone: formDataFromCart?.phonenumber || "",
-      name: formDataFromCart?.name || "",
-      region: formDataFromCart?.region || "",
-    }));
-
-    if (formDataFromCart?.discountedTotal) {
-      setDiscountedTotal(formDataFromCart.discountedTotal);
-      setTotalPrice(formDataFromCart.discountedTotal);
-    } else {
-      calculateTotalPrice(shippingFee);
-    }
-  }, [formDataFromCart, shippingFee]);
 
   return (
     <>
@@ -310,6 +353,7 @@ export default function ShippingPage() {
               </div>
             </div>
 
+
             {/* Shipping Region Section */}
             <h3 className="text-lg font-medium mt-6" style={{ color: "#007bff" }}>Shipping Region</h3>
             <select
@@ -317,7 +361,7 @@ export default function ShippingPage() {
               onChange={handleChange}
               className="form-select p-3"
               style={{ borderColor: "#007bff" }}
-              value={formData.region}
+              value={formData.region || ""}
             >
               <option value="">Select Region</option>
               <option value="Nairobi CBD">Nairobi CBD / Town - KES 0</option>
@@ -337,16 +381,21 @@ export default function ShippingPage() {
             {formErrors.region && <small className="text-danger">{formErrors.region}</small>}
           </div>
 
+
           {/* Item Details and Summary Section */}
           <div className="p-3 col-12 col-md-6">
             <div className="row">
+              {/* Item Details */}
               <div className="col-md-12">
                 <div className="card p-3" style={{ boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}>
                   <div className="card-body">
                     <h5 className="card-title" style={{ color: "#007bff" }}>Item Details</h5>
+
+
                     {cart.map((item, index) => {
                       const itemPriceWithCustomization = item.price + calculateCustomizationCharge(item);
                       const totalItemPrice = (item.quantity * itemPriceWithCustomization).toFixed(2);
+
 
                       return (
                         <div key={index} className="d-flex flex-column flex-md-row align-items-center p-3 mb-3" style={{
@@ -356,20 +405,27 @@ export default function ShippingPage() {
                           overflow: "hidden",
                           width: "100%"
                         }}>
+                          {/* Product Image */}
                           <div style={{ width: "80px", height: "80px", flexShrink: 0 }}>
-                            <img 
-                              src={item.image_url} 
-                              alt={item.name} 
-                              style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }} 
+                            <img
+                              src={item.image_url}
+                              alt={item.name}
+                              style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "5px" }}
                             />
                           </div>
+
+
+                          {/* Product Details */}
                           <div className="px-3 flex-grow-1 text-center text-md-left w-100">
                             <strong>{item.name}</strong>
                             <p className="mb-1">Quantity: {item.quantity}</p>
                             <p className="mb-1">Size: {item.size || 'N/A'}</p>
                             <p className="mb-1">Edition: {item.edition || 'N/A'}</p>
+
+
+                            {/* Customization Dropdown */}
                             <div className="dropdown">
-                              <button 
+                              <button
                                 className="btn btn-outline-secondary btn-sm dropdown-toggle"
                                 type="button"
                                 data-bs-toggle="dropdown">
@@ -383,9 +439,12 @@ export default function ShippingPage() {
                               </div>
                             </div>
                           </div>
+
+
+                          {/* Total Price Section */}
                           <div className="text-center text-md-right w-100 mt-2 font-weight-bold">
                             <p className="mb-0 text-muted">
-                              Total: KES {totalItemPrice} 
+                              Total: KES {totalItemPrice}
                             </p>
                           </div>
                         </div>
@@ -396,6 +455,7 @@ export default function ShippingPage() {
               </div>
             </div>
           </div>
+
 
           {/* Summary Section */}
           <div className="col-12 mt-4">
@@ -409,6 +469,7 @@ export default function ShippingPage() {
             </div>
           </div>
         </div>
+
 
         {/* Payment Section */}
         <div className="mt-4">
@@ -427,15 +488,16 @@ export default function ShippingPage() {
           </form>
         </div>
 
+
         {/* Payment Status Messages */}
         {paymentStatus === "payment_success" && (
           <div className="alert alert-success mt-4">
-            Payment initiated successfully! Check your phone to complete the payment.
+            Payment initiated successfully! Processing your order...
           </div>
         )}
-        {showSuccessMessage && (
+        {paymentStatus === "order_success" && (
           <div className="alert alert-success mt-4">
-            <span className="mr-2">✓</span> Payment successful! Your order has been placed and will be delivered in 1 day.
+            Order placed successfully! Thank you for your purchase.
           </div>
         )}
         {paymentStatus === "payment_failed" && (
@@ -457,3 +519,4 @@ export default function ShippingPage() {
     </>
   );
 }
+

@@ -52,11 +52,11 @@ export default function Ondelivery() {
         size: item.size || "N/A",
         edition: item.edition || "N/A",
         customName: item.customName || "",
-        customNumber: item.customNumber || "",
+        customNumber: item.customNumber,
         fontType: item.fontType || "",
         badge: item.badge || "",
         price: item.price,
-        product_variant_id: Number(item.product_variant_id) || 1, // Ensure numeric ID
+        // product_variant_id: Number(item.product_variant_id) || 1, // Ensure numeric ID
       })),
       shipping_details: {
         name: formData.name?.trim() || "",

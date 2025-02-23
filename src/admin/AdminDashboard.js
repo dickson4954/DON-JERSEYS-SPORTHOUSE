@@ -141,8 +141,8 @@ const AdminDashboard = () => {
   const renderOrderItems = () => {
     return selectedOrder?.items?.map((item, index) => (
       <div key={index}>
-        <h4>Product Name: {item.product_name}</h4>
-        <p>Description: {item.description}</p>
+        <h4>Name: {item.product?.name || 'N/A'}</h4>  {/* Display product name */}
+        <p>Description: {item.product?.description || 'N/A'}</p>  {/* Display product description */}
         <p>Quantity: {item.quantity}</p>
         <p>Unit Price: {item.unit_price}</p>
         <p>Size: {item.size || 'N/A'}</p>  {/* Display size */}
