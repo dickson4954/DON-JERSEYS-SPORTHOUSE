@@ -9,6 +9,7 @@ body {
   font-family: 'Arial', sans-serif;
   background-color: #FFA500;
   color: #333;
+  line-height: 1.6;
 }
 
 /* Admin Dashboard Container */
@@ -21,6 +22,7 @@ body {
   padding: 20px;
   background-color: #fff;
   border-radius: 8px;
+  width: 100%;
 }
 
 /* Header Styles */
@@ -65,15 +67,20 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 20px;
+  gap: 10px;
 }
 
 .category-btn {
   background-color: #c2723d;
   padding: 10px 15px;
-  margin: 5px;
   border: none;
   cursor: pointer;
   border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.category-btn:hover {
+  background-color: #a55c2b;
 }
 
 .category-btn.active {
@@ -86,12 +93,14 @@ body {
   width: 100%;
   border-collapse: collapse;
   margin: 20px 0;
+  overflow-x: auto;
 }
 
 .styled-table th,
 .styled-table td {
   padding: 12px 15px;
   text-align: left;
+  font-size: 16px;
 }
 
 .styled-table thead th {
@@ -108,16 +117,20 @@ body {
   background-color: #ececec;
 }
 
-.orders-table {
+.orders-table, .products-table {
   margin-top: 20px;
+  overflow-x: auto;
+  display: block;
+  width: 100%;
 }
-  
+
 .error-message {
   color: #dc3545;
   font-weight: bold;
 }
-  
-.image-modal {
+
+/* Modal Styles */
+.image-modal, .order-details-modal {
   position: fixed;
   top: 0;
   left: 0;
@@ -127,40 +140,15 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.image-modal-content {
-  position: relative;
-}
-
-.close-modal {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-.order-details-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 1000;
 }
 
-.order-details-content {
+.image-modal-content, .order-details-content {
   background: white;
   padding: 20px;
   border-radius: 5px;
   max-width: 600px;
-  width: 90%;
+  width: 95%;
   position: relative;
 }
 
@@ -168,9 +156,11 @@ body {
   position: absolute;
   top: 10px;
   right: 10px;
+  color: black;
   font-size: 24px;
   cursor: pointer;
 }
+
 .delete-btn {
   background-color: red;
   color: white;
@@ -182,4 +172,40 @@ body {
 
 .delete-btn:hover {
   background-color: darkred;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-dashboard {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .dashboard-header {
+    padding: 15px;
+    font-size: 18px;
+  }
+
+  .category-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .styled-table th, .styled-table td {
+    padding: 8px;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+
+  .toggle-form-btn, .logout-btn, .category-btn, .delete-btn {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .styled-table, .orders-table, .products-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+  }
 }
