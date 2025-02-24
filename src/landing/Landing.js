@@ -79,7 +79,7 @@ function Landing() {
               </h2>
               <div id="collapseTwo" className="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
                 <div className="accordion-body">
-                  Delivery typically takes 3-5 business days within Nairobi.
+                Delivery takes 1 business day in various parts of Kenya.
                 </div>
               </div>
             </div>
@@ -105,7 +105,7 @@ function Landing() {
             <div className="col-md-4 testimonial">
               <img src={Casey} alt="Casey" className="testimonial-img" />
               <p>"Excellent experience. The products are authentic and high quality!"</p>
-              <p className="text-muted">- Casey, Verified Buyer</p>
+              <p className="text-muted"> Casey, Verified Buyer</p>
             </div>
           </div>
         </div>
