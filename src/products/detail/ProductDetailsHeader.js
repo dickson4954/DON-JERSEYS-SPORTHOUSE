@@ -104,7 +104,7 @@ function ProductDetailsHeader() {
       <div className="container-fluid">
         <Link className="navbar-brand" to="/">
           <FontAwesomeIcon icon={["fab", "bootstrap"]} className="ms-1" size="lg" />
-          <span className="ms-2 h5">Don Jerseys</span>
+          <span className="ms-2 h5">Don Jerseys Sporthouse</span>
         </Link>
 
         <div className="ms-auto">

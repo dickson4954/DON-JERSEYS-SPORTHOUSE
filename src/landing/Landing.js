@@ -95,17 +95,17 @@ function Landing() {
             <div className="col-md-4 testimonial">
               <img src={Alex} alt="Alex" className="testimonial-img" />
               <p>"Great quality jerseys! Fast delivery and excellent customer service."</p>
-              <p className="text-muted">- Alex, Verified Buyer</p>
+              <p className="text-muted">Omar, Verified Buyer</p>
             </div>
             <div className="col-md-4 testimonial">
               <img src={Jordan} alt="Jordan" className="testimonial-img" />
               <p>"The best place to get your favorite team's kit. Highly recommend!"</p>
-              <p className="text-muted">- Jordan, Verified Buyer</p>
+              <p className="text-muted"> Evance, Verified Buyer</p>
             </div>
             <div className="col-md-4 testimonial">
               <img src={Casey} alt="Casey" className="testimonial-img" />
               <p>"Excellent experience. The products are authentic and high quality!"</p>
-              <p className="text-muted"> Casey, Verified Buyer</p>
+              <p className="text-muted"> Lynelle, Verified Buyer</p>
             </div>
           </div>
         </div>
