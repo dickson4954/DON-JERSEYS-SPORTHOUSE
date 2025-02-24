@@ -218,7 +218,7 @@ export default function ShippingPage() {
     let fee = 0;
     switch (region) {
       case "Nairobi CBD":
-        fee = 0;
+        fee = 100;
         break;
       case "Public Means":
         fee = 300;
@@ -365,7 +365,7 @@ export default function ShippingPage() {
               value={formData.region || ""}
             >
               <option value="">Select Region</option>
-              <option value="Nairobi CBD">Nairobi CBD / Town - KES 0</option>
+              <option value="Nairobi CBD">Nairobi CBD / Town - KES 100</option>
               <option value="Public Means">Public Means (Matatu) - KES 300</option>
               <option value="ZONE 1">ZONE 1: Upper-Hill, Statehouse, Parklands, Pangani, Mbagathi Way, Strathmore Uni - KES 300</option>
               <option value="ZONE 2">ZONE 2: Kileleshwa, Kilimani, Adams Arcade, Jamhuri, Hurlingham, Junction Mall, Westlands, Waiyaki Way, Lavington - KES 300</option>
