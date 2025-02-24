@@ -181,7 +181,7 @@ function ProductList() {
                           <div className="card-body text-center">
                             <h5 className="product-name">{product.name}</h5>
                             <div className="price-details-container">
-                              <p className="product-price">{product.price} Ks</p>
+                              <p className="product-price">{product.price} Ksh</p>
                               <Link
                                 to={`/products/${product.id}`}
                                 state={{
