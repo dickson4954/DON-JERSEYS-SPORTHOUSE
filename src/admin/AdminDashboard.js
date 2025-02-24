@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      const response = await axios.get('http://127.0.0.1:5000/orders');
+      const response = await axios.get('https://donjerseyssporthouseserver-5-cmus.onrender.com/orders');
       setOrders(response.data || []); // Fallback to an empty array
       setErrorOrders('');
     } catch (error) {
@@ -107,7 +107,7 @@ const AdminDashboard = () => {
       const confirmation = window.confirm("Are you sure you want to delete this order?");
       if (!confirmation) return;
   
-      const response = await axios.delete(`http://127.0.0.1:5000/orders/${orderId}`);
+      const response = await axios.delete(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}`);
       if (response.status === 200) {
         setOrders(orders.filter(order => order.id !== orderId)); // Update state to reflect deletion
         setErrorOrders('');
@@ -123,7 +123,7 @@ const AdminDashboard = () => {
   const handleViewOrder = async (orderId) => {
     try {
       setLoadingOrders(true);
-      const orderResponse = await axios.get(`http://127.0.0.1:5000/orders/${orderId}`);
+      const orderResponse = await axios.get(`https://donjerseyssporthouseserver-5-cmus.onrender.com/orders/${orderId}`);
       const orderData = orderResponse.data;
   
       console.log("Fetched order data:", orderData);  // Log the response data

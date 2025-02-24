@@ -55,7 +55,9 @@ function ProductDetailsHeader() {
       navigate("/cart");
     } else if (location.pathname === "/cart") {
       navigate("/");
-    } else if (previousPath) {
+    } else if (location.pathname === "/ondelivery"){
+      navigate("/cart")
+    }else if (previousPath) {
       navigate(previousPath);
     } else {
       navigate("/");

@@ -4,6 +4,7 @@ import CartContext from "../CartContext";
 import ProductDetailsHeader from "../products/detail/ProductDetailsHeader";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
+import './ShippingPage.css'
 
 
 export default function ShippingPage() {
@@ -91,7 +92,7 @@ export default function ShippingPage() {
 
     try {
       // Step 1: Initiate payment
-      const paymentResponse = await axios.post("http://127.0.0.1:5000/pay", {
+      const paymentResponse = await axios.post("https://donjerseyssporthouseserver-5-cmus.onrender.com/pay", {
         phone_number: paymentPhoneNumber,
         amount: totalPrice,
       });
@@ -174,7 +175,7 @@ export default function ShippingPage() {
     console.log("Order Data to be Posted:", orderData);
   
     try {
-      const response = await fetch("http://127.0.0.1:5000/orders", {
+      const response = await fetch("https://donjerseyssporthouseserver-5-cmus.onrender.com/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -473,7 +474,7 @@ export default function ShippingPage() {
 
         {/* Payment Section */}
         <div className="mt-4">
-          <h3 className="text-lg font-medium" style={{ color: "#007bff" }}>Payment</h3>
+          <h3 className="text-lg font-medium" style={{ color: "#34B233" }}>Payment</h3>
           <form onSubmit={handlePayment}>
             <input
               type="text"
@@ -482,7 +483,7 @@ export default function ShippingPage() {
               onChange={(e) => setPaymentPhoneNumber(e.target.value)}
               className="form-control p-3 mb-3"
             />
-            <button type="submit" className="btn btn-primary w-100 p-3" disabled={loading}>
+            <button type="submit" className="pay-btn w-100 p-3" disabled={loading}>
               {loading ? "Processing..." : "Pay Now"}
             </button>
           </form>
