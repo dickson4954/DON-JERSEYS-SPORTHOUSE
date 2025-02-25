@@ -1,0 +1,64 @@
+/* Ensures everything is aligned in one row */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  /* Main container with proper spacing */
+  .container-fluid {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 0 15px;
+  }
+  
+  /* Brand name styling */
+  .navbar-brand {
+    font-weight: bold;
+    white-space: nowrap;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    height: 50px; /* Ensures consistent height */
+    margin: 0;
+  }
+  
+  /* Ensures buttons align in a straight line */
+  .icon-buttons {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  /* Style for individual buttons */
+  .icon-buttons button,
+  .navbar-toggler {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    width: 40px;
+    border: none;
+    background: transparent;
+  }
+  
+  /* Fixes the alignment on all screen sizes */
+  @media (max-width: 768px) {
+    .container-fluid {
+      flex-wrap: nowrap;
+    }
+  
+    .icon-buttons {
+      gap: 5px; /* Reduce spacing */
+    }
+  
+    .navbar-brand {
+      font-size: 16px;
+      height: auto;
+    }
+  }
+  
