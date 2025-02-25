@@ -46,36 +46,27 @@ function Header() {
     }
   };
 
-  useEffect(() => {
-    if (searchTerm) {
-      const productsSection = document.getElementById('products-section');
-      if (productsSection) {
-        productsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, [searchTerm]);
-
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <header>
       <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
         <div className="container-fluid d-flex align-items-center justify-content-between">
-          <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-2">
             <Link className="navbar-brand m-0 p-0" to="/">
-              <span className="h5">Don Jerseys Sport</span>
+              <span className="h6">Don Jerseys Sporthouse</span>
             </Link>
             <Link to="/products" className="nav-link d-none d-lg-block">Explore</Link>
           </div>
 
-          <div className="d-flex align-items-center gap-2">
+          <div className="d-flex align-items-center gap-1">
             <button
               type="button"
               className="btn btn-outline-dark d-flex align-items-center justify-content-center"
-              style={{ width: '40px', height: '40px' }}
+              style={{ width: '35px', height: '35px' }}
               onClick={() => setShowSearchBar(!showSearchBar)}
             >
-              <FontAwesomeIcon icon={faSearch} />
+              <FontAwesomeIcon icon={faSearch} size="xs" />
             </button>
 
             {showSearchBar && (
@@ -92,10 +83,10 @@ function Header() {
             <button
               type="button"
               className="btn btn-outline-dark position-relative d-flex align-items-center justify-content-center"
-              style={{ width: '40px', height: '40px' }}
+              style={{ width: '35px', height: '35px' }}
               onClick={() => navigate('/cart')}
             >
-              <FontAwesomeIcon icon={faShoppingCart} />
+              <FontAwesomeIcon icon={faShoppingCart} size="xs" />
               {totalItems > 0 && (
                 <span className="badge bg-danger rounded-circle position-absolute top-0 end-0">
                   {totalItems}
@@ -109,8 +100,9 @@ function Header() {
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
+                style={{ width: '35px', height: '35px' }}
               >
-                <FontAwesomeIcon icon={faUserAlt} />
+                <FontAwesomeIcon icon={faUserAlt} size="xs" />
               </button>
               <ul className="dropdown-menu dropdown-menu-end">
                 {user ? (
