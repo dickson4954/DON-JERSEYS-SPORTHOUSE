@@ -1,64 +1,49 @@
-/* Ensures everything is aligned in one row */
+/* Navbar should remain fixed */
 .navbar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: fixed;
+    top: 0;
     width: 100%;
+    z-index: 1000;
   }
   
-  /* Main container with proper spacing */
-  .container-fluid {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 0 15px;
+  /* Search bar - initially hidden */
+  .search-wrapper {
+    position: absolute;
+    top: 100%; /* Push below navbar */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    display: none; /* Hide initially */
+    background: white;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1050; /* Above content, below navbar */
   }
   
-  /* Brand name styling */
-  .navbar-brand {
-    font-weight: bold;
-    white-space: nowrap;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    height: 50px; /* Ensures consistent height */
-    margin: 0;
+  /* Show search bar when toggled */
+  .search-wrapper.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
   }
   
-  /* Ensures buttons align in a straight line */
-  .icon-buttons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
+  /* Smooth slide-down effect */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
   
-  /* Style for individual buttons */
-  .icon-buttons button,
-  .navbar-toggler {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-    width: 40px;
-    border: none;
-    background: transparent;
-  }
-  
-  /* Fixes the alignment on all screen sizes */
+  /* Ensure proper display on mobile */
   @media (max-width: 768px) {
-    .container-fluid {
-      flex-wrap: nowrap;
-    }
-  
-    .icon-buttons {
-      gap: 5px; /* Reduce spacing */
-    }
-  
-    .navbar-brand {
-      font-size: 16px;
-      height: auto;
+    .search-wrapper {
+      width: 90%;
     }
   }
   
