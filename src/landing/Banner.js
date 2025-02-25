@@ -37,7 +37,7 @@ function Banner() {
   useEffect(() => {
     const carouselElement = document.getElementById("bannerIndicators");
     new bootstrap.Carousel(carouselElement, {
-      interval: 3000, // Auto-move every 3 seconds
+      interval: 700, // Auto-move every 3 seconds
       ride: "carousel",
     });
   }, []);
