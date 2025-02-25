@@ -10,7 +10,7 @@ import "./Productlist.css";
 function FilterMenuLeft({ categories, selectedCategory, setSelectedCategory }) {
   return (
     <ul className="list-group list-group-flush rounded">
-      <li className="list-group-item d-none d-lg-block">
+      <li className="list-group-item  d-lg-block">
         <h5 className="mt-1 mb-2">Browse by Category</h5>
         <div className="d-flex flex-wrap my-2">
           {categories.map((category, i) => (
@@ -110,7 +110,7 @@ function ProductList() {
 
           {/* Filter Menu for Categories */}
           <div className="row mb-4 mt-lg-3">
-            <div className="col-lg-3 d-none d-lg-block">
+            <div className="col-lg-3  d-lg-block">
               <div className="border rounded shadow-sm">
                 <FilterMenuLeft
                   categories={categories}

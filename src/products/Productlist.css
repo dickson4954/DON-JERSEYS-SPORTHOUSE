@@ -89,3 +89,26 @@
 .view-details-icon {
   font-size: 1.2rem;
 }
+@media (max-width: 768px) {
+  .list-group {
+    display: flex !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .input-group {
+    margin-top: 20px !important; /* Pushes search bar down */
+  }
+
+  .container-full-width {
+    padding-top: 50px; /* Creates space under the navbar */
+  }
+}
+
+/* Navbar styles should be outside @media if they apply globally */
+.navbar {
+  position: relative; /* Avoid overlap */
+  z-index: 1000;
+  background-color: white;
+}
