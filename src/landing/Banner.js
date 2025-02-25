@@ -35,10 +35,11 @@ function BannerImage({ image, active, header, text }) {
 
 function Banner() {
   useEffect(() => {
+    // No need for manual trigger here; just initialize the carousel
     const carouselElement = document.getElementById("bannerIndicators");
     new bootstrap.Carousel(carouselElement, {
-      interval: 700, // Auto-move every 3 seconds
-      ride: "carousel",
+      interval: 2000, // Automatically move every 2 seconds
+      ride: "carousel", // Ensures the carousel starts automatically
     });
   }, []);
 
@@ -46,14 +47,14 @@ function Banner() {
     <div
       id="bannerIndicators"
       className="carousel slide"
-      data-bs-ride="carousel"
-      data-bs-interval="3000"
+      data-bs-ride="carousel" // This makes sure the carousel auto-starts
+      data-bs-interval="3000" // Time between slides (3 seconds)
       style={{ marginTop: "56px" }}
     >
       <div className="carousel-indicators">
-        <BannerIndicator index="0" active={true} />
-        <BannerIndicator index="1" />
-        <BannerIndicator index="2" />
+        <BannerIndicator index={0} active={true} />
+        <BannerIndicator index={1} />
+        <BannerIndicator index={2} />
       </div>
       <div className="carousel-inner">
         <BannerImage
@@ -73,8 +74,6 @@ function Banner() {
           text="We offer original jerseys only."
         />
       </div>
-
-      {/* Removed navigation buttons */}
     </div>
   );
 }
