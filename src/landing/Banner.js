@@ -30,7 +30,7 @@ function BannerImage(props) {
           src={props.image}
         />
       </div>
-      <div className="carousel-caption d-none d-lg-block">
+      <div className="carousel-caption  d-lg-block">
         <h5>{props.header}</h5>
         <p>{props.text}</p>
       </div>
