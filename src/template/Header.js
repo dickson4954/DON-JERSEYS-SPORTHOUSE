@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import CartContext from '../CartContext'; // Ensure the correct import path
-import AuthModal from '../user/AuthModal'; // Ensure the correct import path
+import CartContext from '../CartContext';
+import AuthModal from '../user/AuthModal';
 import Modal from 'react-bootstrap/Modal';
 
 function Header() {
@@ -13,6 +13,8 @@ function Header() {
   const [user, setUser] = useState(null);
   const [showCartModal, setShowCartModal] = useState(false);
   const [showCart, setShowCart] = useState(false);
+  const [showSearchBar, setShowSearchBar] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -43,47 +45,22 @@ function Header() {
     navigate("/cart");
   }
 
-  const handleQuantityChange = (productId, newQuantity, stock) => {
-    if (newQuantity > stock) {
-      alert(`You can only order up to ${stock} units.`);
-    } else if (newQuantity < 1) {
-      alert('Quantity must be at least 1.');
-    } else {
-      updateQuantity(productId, newQuantity);
-    }
+  const handleSearch = (e) => {
+    e.preventDefault();
+    navigate(`/?search=${searchQuery}`); // Pass the search query as a URL parameter
+    setShowSearchBar(false);
+    setSearchQuery('');
   };
 
-  function handleOrderClick() {
-    // Check if all cart items have a size selected
-    const allSizesSelected = cart.every(item => item.size && item.size.trim() !== "");
-  
-    if (!allSizesSelected) {
-      alert("Please select a size for each item in the cart.");
-      console.error("Order attempt with missing sizes.");
-      return;
+  // Scroll to products section when searchQuery changes
+  useEffect(() => {
+    if (searchQuery) {
+      const productsSection = document.getElementById('products-section');
+      if (productsSection) {
+        productsSection.scrollIntoView({ behavior: 'smooth' });
+      }
     }
-  
-    if (cart.length === 0) {
-      alert("Cart is empty. Add items before proceeding.");
-      console.error("Order attempt with empty cart.");
-      return;
-    }
-    
-    setShowCart(false); 
-    navigate("/order-form", { state: { cart } }); 
-    console.log("Navigated to OrderForm with cart contents:", cart);
-  }
-  
-  function handleSizeChange(productId, newSize) {
-    setCart((prevCart) =>
-      prevCart.map(item =>
-        item.id === productId ? { ...item, size: newSize } : item
-      )
-    );
-    console.log(`Updated size for product ${productId} to ${newSize}`);
-  }
-
-  const cartTotal = cart.reduce((total, item) => total + item.quantity * item.price, 0);
+  }, [searchQuery]);
 
   return (
     <>
@@ -91,11 +68,9 @@ function Header() {
         <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
           <div className="container-fluid">
             <Link className="navbar-brand" to="/" onClick={() => setOpenedDrawer(false)}>
-              {/* <FontAwesomeIcon icon={['fab', 'bootstrap']} className="ms-1" size="lg" /> */}
               <span className="ms-2 h5">Don Jerseys Sporthouse</span>
             </Link>
             
-
             <div className={"navbar-collapse offcanvas-collapse " + (openedDrawer ? "open" : "")}>
               <ul className="navbar-nav me-auto mb-lg-0">
                 <li className="nav-item">
@@ -106,6 +81,28 @@ function Header() {
               </ul>
 
               <div className="d-flex align-items-center">
+                {/* Search Icon and Search Bar */}
+                <div className="me-3">
+                  <button
+                    type="button"
+                    className="btn btn-outline-dark"
+                    onClick={() => setShowSearchBar(!showSearchBar)}
+                  >
+                    <FontAwesomeIcon icon={['fas', 'search']} />
+                  </button>
+                  {showSearchBar && (
+                    <form className="d-inline-block ms-2" onSubmit={handleSearch}>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Search for desired product"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                    </form>
+                  )}
+                </div>
+
                 {/* Cart Icon with Badge */}
                 <div className="position-relative me-3">
                   <button
@@ -175,68 +172,6 @@ function Header() {
             </div>
           </div>
         </nav>
-
-        {/* Cart Modal */}
-        {/* <Modal show={showCartModal} onHide={toggleCartModal}>
-  <Modal.Header closeButton>
-    <Modal.Title>Your Cart</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    {cart.length > 0 ? (
-      <ul className="list-group">
-        {cart.map((item, index) => (
-          <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-            <div>
-              <div>{item.name}</div>
-              <div>
-                Quantity: 
-                <input 
-                  type="number" 
-                  value={item.quantity} 
-                  min="1" 
-                  max={item.stock} 
-                  onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value), item.stock)} 
-                />
-              </div>
-              <div>Price: ${item.price}</div>
-              <div>
-                Size:
-                <input
-                  type="text"
-                  value={item.size || ''}
-                  placeholder="Enter size"
-                  required
-                  onChange={(e) => handleSizeChange(item.id, e.target.value)}
-                />
-              </div>
-            </div>
-            <button
-              className="btn btn-danger btn-sm"
-              onClick={() => removeFromCart(item.id)}
-            >
-              Remove
-            </button>
-          </li>
-        ))}
-      </ul>
-    ) : (
-      <p>Your cart is empty.</p>
-    )}
-  </Modal.Body>
-  <Modal.Footer>
-    <div className="me-auto">
-      <h5>Total: ${cartTotal.toFixed(2)}</h5>
-    </div>
-    <button className="btn btn-success" onClick={handleOrderClick}>
-      Order Now
-    </button>
-    <button className="btn btn-secondary" onClick={toggleCartModal}>
-      Close
-    </button>
-  </Modal.Footer>
-</Modal> */}
-
-
       </header>
 
       <AuthModal isOpen={showAuthModal} onClose={closeModal} isSignup={isSignup} />

@@ -134,66 +134,6 @@ function ProductDetailsHeader() {
 
       </div>
     </nav>
-
-
-      {/* <Modal show={showCart} onHide={toggleCart}>
-        <Modal.Header closeButton>
-          <Modal.Title>Your Cart</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {cart.length > 0 ? (
-            <ul className="list-group">
-              {cart.map((item, index) => (
-                <li key={index} className="list-group-item d-flex justify-content-between align-items-center">
-                  <div>
-                    <div>{item.name}</div>
-                    <div>
-                      Quantity: 
-                      <input 
-                        type="number" 
-                        value={item.quantity} 
-                        min="1" 
-                        max={item.stock} 
-                        onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value), item.stock)} 
-                      />
-                    </div>
-                    <div>Price: ${item.price}</div>
-                    <div>
-                      Size:
-                      <input
-                        type="text"
-                        value={item.size || ''}
-                        placeholder="Enter size"
-                        required
-                        onChange={(e) => handleSizeChange(item.id, e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() => removeFromCart(item.id)}
-                  >
-                    Remove
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Your cart is empty.</p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <div className="me-auto">
-            <h5>Total: ${cartTotal.toFixed(2)}</h5>
-          </div>
-          <button className="btn btn-success" onClick={handleOrderClick}>
-            Order Now
-          </button>
-          <button className="btn btn-secondary" onClick={toggleCart}>
-            Close
-          </button>
-        </Modal.Footer>
-      </Modal> */}
     </header>
   );
 }
