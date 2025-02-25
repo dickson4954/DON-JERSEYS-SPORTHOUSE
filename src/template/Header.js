@@ -14,7 +14,7 @@ function Header() {
   const [showCartModal, setShowCartModal] = useState(false);
   const [showCart, setShowCart] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -45,22 +45,22 @@ function Header() {
     navigate("/cart");
   }
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    navigate(`/?search=${searchQuery}`); // Pass the search query as a URL parameter
-    setShowSearchBar(false);
-    setSearchQuery('');
+  // Handle real-time search as the user types
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    navigate(`/?search=${value}`); // Update the URL with the search term
   };
 
-  // Scroll to products section when searchQuery changes
+  // Scroll to products section when searchTerm changes
   useEffect(() => {
-    if (searchQuery) {
+    if (searchTerm) {
       const productsSection = document.getElementById('products-section');
       if (productsSection) {
         productsSection.scrollIntoView({ behavior: 'smooth' });
       }
     }
-  }, [searchQuery]);
+  }, [searchTerm]);
 
   return (
     <>
@@ -91,15 +91,15 @@ function Header() {
                     <FontAwesomeIcon icon={['fas', 'search']} />
                   </button>
                   {showSearchBar && (
-                    <form className="d-inline-block ms-2" onSubmit={handleSearch}>
+                    <div className="d-inline-block ms-2">
                       <input
                         type="text"
                         className="form-control"
                         placeholder="Search for desired product"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
+                        value={searchTerm}
+                        onChange={handleSearchChange} // Handle real-time search
                       />
-                    </form>
+                    </div>
                   )}
                 </div>
 
