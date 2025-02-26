@@ -156,6 +156,10 @@ function Landing() {
           <a href="https://www.tiktok.com/@don_jersey_sportshouse?_t=8qoEEjvusxq&_r=1" className="ms-3" target="_blank" rel="noopener noreferrer">
             <FontAwesomeIcon icon={["fab", "tiktok"]} size="2x" />
           </a>
+          <a href="https://whatsapp.com/channel/0029Vb1tvsjHwXb3IyPDBO07" className="ms-3" target="_blank" rel="noopener noreferrer">
+            <FontAwesomeIcon icon={["fab", "whatsapp"]} size="2x" style={{ color: "#25D366" }} />
+          </a>
+
         </div>
       </div>
 
