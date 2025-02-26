@@ -54,7 +54,7 @@ function Header() {
         <div className="container-fluid d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center gap-2">
             <Link className="navbar-brand m-0 p-0" to="/">
-              <span className="h6">Don Jerseys Sporthouse</span>
+              <span className="h6">Don Jersey SportsHouse</span>
             </Link>
             <Link to="/products" className="nav-link d-none d-lg-block">Explore</Link>
           </div>

@@ -47,9 +47,9 @@ function ProductDetailsHeader() {
       alert('Quantity must be at least 1.');
     } else {
       updateQuantity(productId, newQuantity);
-      // console.log(`Updated quantity for product ${productId} to ${newQuantity}`);
     }
   }
+
   function handleBackClick() {
     if (location.pathname === "/shipping-page") {
       navigate("/cart");
@@ -57,7 +57,7 @@ function ProductDetailsHeader() {
       navigate("/");
     } else if (location.pathname === "/ondelivery"){
       navigate("/cart")
-    }else if (previousPath) {
+    } else if (previousPath) {
       navigate(previousPath);
     } else {
       navigate("/");
@@ -65,15 +65,14 @@ function ProductDetailsHeader() {
   }
   
   function handleOrderClick() {
-    // Check if all cart items have a size selected
     const allSizesSelected = cart.every(item => item.size && item.size.trim() !== "");
-  
+
     if (!allSizesSelected) {
       alert("Please select a size for each item in the cart.");
       console.error("Order attempt with missing sizes.");
       return;
     }
-  
+
     if (cart.length === 0) {
       alert("Cart is empty. Add items before proceeding.");
       console.error("Order attempt with empty cart.");
@@ -85,7 +84,6 @@ function ProductDetailsHeader() {
     console.log("Navigated to OrderForm with cart contents:", cart);
   }
   
-
   function handleSizeChange(productId, newSize) {
     setCart((prevCart) =>
       prevCart.map(item =>
@@ -96,44 +94,32 @@ function ProductDetailsHeader() {
   }
 
   const cartTotal = cart.reduce((total, item) => total + item.quantity * item.price, 0);
-  // console.log('Current cart contents:', cart);
 
   return (
     <header>
-    <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
-      <div className="container-fluid">
-        <Link className="navbar-brand" to="/">
-          <FontAwesomeIcon icon={["fab", "bootstrap"]} className="ms-1" size="lg" />
-          <span className="ms-2 h5">Don Jerseys Sporthouse</span>
-        </Link>
+      <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
+        <div className="container-fluid">
+          <Link className="navbar-brand d-flex align-items-center" to="/">
+            <FontAwesomeIcon icon={["fab", "bootstrap"]} className="ms-1" size="sm" />
+            <span className="ms-2 fw-bold" style={{ fontSize: "1rem" }}>Don Jerseys Sporthouse</span>
+          </Link>
 
-        <div className="ms-auto">
-  {/* Always show the back button on the ShippingPage */}
-  {location.pathname === "/shipping-page" ? (
-    <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
-      <FontAwesomeIcon icon={['fas', 'arrow-left']} />
-      Back
-    </button>
-  ) : (
-    showBackButton && (
-      <button type="button" className="btn btn-outline-secondary me-3" onClick={handleBackClick}>
-        <FontAwesomeIcon icon={['fas', 'arrow-left']} />
-        Back
-      </button>
-    )
-  )}
+          <div className="ms-auto">
+            {showBackButton && (
+              <button type="button" className="btn btn-outline-secondary btn-sm me-2" onClick={handleBackClick}>
+                <FontAwesomeIcon icon={['fas', 'arrow-left']} size="sm" /> Back
+              </button>
+            )}
 
-  {/* Always show the cart button */}
-  <button type="button" className="btn btn-outline-dark" onClick={() => navigate("/cart")}>
-    <FontAwesomeIcon icon={["fas", "shopping-cart"]} />
-    <span className="ms-3 badge rounded-pill bg-dark">
-      {cart.length || 0}
-    </span>
-  </button>
-</div>
-
-      </div>
-    </nav>
+            <button type="button" className="btn btn-outline-dark btn-sm" onClick={() => navigate("/cart")}>
+              <FontAwesomeIcon icon={["fas", "shopping-cart"]} size="sm" />
+              <span className="ms-1 badge bg-dark" style={{ fontSize: "0.75rem", padding: "2px 6px" }}>
+                {cart.length || 0}
+              </span>
+            </button>
+          </div>
+        </div>
+      </nav>
     </header>
   );
 }
