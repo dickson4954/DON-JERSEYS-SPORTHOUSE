@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "/DON-JERSEYS-SPORTHOUSE/static/css/main.055f91cb.css",
-    "main.js": "/DON-JERSEYS-SPORTHOUSE/static/js/main.02cac27a.js",
+    "main.css": "/DON-JERSEYS-SPORTHOUSE/static/css/main.3a99a478.css",
+    "main.js": "/DON-JERSEYS-SPORTHOUSE/static/js/main.dd2c5d4c.js",
     "static/js/453.20c20821.chunk.js": "/DON-JERSEYS-SPORTHOUSE/static/js/453.20c20821.chunk.js",
     "static/media/fa-solid-900.ttf": "/DON-JERSEYS-SPORTHOUSE/static/media/fa-solid-900.2582b0e4bcf85eceead0.ttf",
     "static/media/banner-1.jpg": "/DON-JERSEYS-SPORTHOUSE/static/media/banner-1.0fd29056792a31ccfaa4.jpg",
@@ -18,12 +18,12 @@
     "static/media/fa-v4compatibility.ttf": "/DON-JERSEYS-SPORTHOUSE/static/media/fa-v4compatibility.da94ef451f4969af06e6.ttf",
     "static/media/fa-v4compatibility.woff2": "/DON-JERSEYS-SPORTHOUSE/static/media/fa-v4compatibility.ea8f94e1d22e0d35ccd4.woff2",
     "index.html": "/DON-JERSEYS-SPORTHOUSE/index.html",
-    "main.055f91cb.css.map": "/DON-JERSEYS-SPORTHOUSE/static/css/main.055f91cb.css.map",
-    "main.02cac27a.js.map": "/DON-JERSEYS-SPORTHOUSE/static/js/main.02cac27a.js.map",
+    "main.3a99a478.css.map": "/DON-JERSEYS-SPORTHOUSE/static/css/main.3a99a478.css.map",
+    "main.dd2c5d4c.js.map": "/DON-JERSEYS-SPORTHOUSE/static/js/main.dd2c5d4c.js.map",
     "453.20c20821.chunk.js.map": "/DON-JERSEYS-SPORTHOUSE/static/js/453.20c20821.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.055f91cb.css",
-    "static/js/main.02cac27a.js"
+    "static/css/main.3a99a478.css",
+    "static/js/main.dd2c5d4c.js"
   ]
 }
