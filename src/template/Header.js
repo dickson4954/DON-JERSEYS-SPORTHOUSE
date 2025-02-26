@@ -39,12 +39,17 @@ function Header() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    
     if (searchTerm.trim()) {
       navigate(`/?search=${searchTerm.trim()}`);
     } else {
       navigate('/');
     }
+  
+    // Dismiss the keyboard by blurring the input field
+    document.activeElement.blur();
   };
+  
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -70,14 +75,14 @@ function Header() {
             </button>
 
             {showSearchBar && (
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search for product"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit(e)}
-              />
+             <input
+    type="text"
+    className="form-control"
+    placeholder="Search for product"
+    value={searchTerm}
+    onChange={handleSearchChange}
+    onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit(e)}
+  />
             )}
 
             <button

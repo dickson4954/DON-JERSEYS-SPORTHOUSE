@@ -49,7 +49,7 @@ function Banner() {
       className="carousel slide"
       data-bs-ride="carousel" // This makes sure the carousel auto-starts
       data-bs-interval="3000" // Time between slides (3 seconds)
-      style={{ marginTop: "56px" }}
+      style={{ marginTop: "30px" }}
     >
       <div className="carousel-indicators">
         <BannerIndicator index={0} active={true} />

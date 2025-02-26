@@ -3,8 +3,12 @@
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 1000;
+    z-index: 0;
   }
+  body {
+    padding-top: 70px; /* Adjust depending on navbar height */
+  }
+  
   
   /* Search bar - initially hidden */
   .search-wrapper {
