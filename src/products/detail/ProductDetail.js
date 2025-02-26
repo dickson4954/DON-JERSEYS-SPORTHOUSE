@@ -227,16 +227,16 @@ function ProductDetail() {
           Print Name + Ksh 200
         </label>
         {customOptions.printName && (
-          <input 
-            type="text" 
-            className="form-control me-3" 
-            placeholder="Enter Name" 
-            value={customOptions.nameText} 
-            onChange={(e) => {
-              const updatedOptions = { ...customOptions, nameText: e.target.value };
-              setCustomOptions(updatedOptions);
-            }} 
-          />
+         <input 
+         type="text" 
+         className="form-control me-3" 
+         placeholder="Enter Name" 
+         value={customOptions.nameText} 
+         onChange={(e) => {
+           const newValue = e.target.value.replace(/[^A-Za-z ]/g, '');
+           setCustomOptions(prev => ({ ...prev, nameText: newValue }));
+         }}
+       />
         )}
       </div>
       <div className="d-flex align-items-center mt-2">
@@ -253,15 +253,15 @@ function ProductDetail() {
         </label>
         {customOptions.printNumber && (
           <input 
-            type="text" 
-            className="form-control me-3" 
-            placeholder="Enter Number" 
-            value={customOptions.numberText} 
-            onChange={(e) => {
-              const updatedOptions = { ...customOptions, numberText: e.target.value };
-              setCustomOptions(updatedOptions);
-            }} 
-          />
+          type="text" 
+          className="form-control me-3" 
+          placeholder="Enter Number" 
+          value={customOptions.numberText} 
+          onChange={(e) => {
+            const newValue = e.target.value.replace(/[^0-9]/g, '');
+            setCustomOptions(prev => ({ ...prev, numberText: newValue }));
+          }}
+        />
         )}
       </div>
       <div className="font-options mt-3">
