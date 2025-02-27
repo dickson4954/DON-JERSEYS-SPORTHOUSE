@@ -40,21 +40,17 @@ function Header() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    
     if (searchTerm.trim()) {
       navigate(`/?search=${searchTerm.trim()}`);
     } else {
       navigate('/');
     }
+  
+    // Dismiss the keyboard by blurring the input field
+    document.activeElement.blur();
   };
-
-  useEffect(() => {
-    if (searchTerm) {
-      const productsSection = document.getElementById('products-section');
-      if (productsSection) {
-        productsSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    }
-  }, [searchTerm]);
+  
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
@@ -62,45 +58,42 @@ function Header() {
     <header>
       <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
         <div className="container-fluid d-flex align-items-center justify-content-between">
-          {/* Brand Name and Explore Link */}
-          <div className="d-flex align-items-center gap-3">
+          <div className="d-flex align-items-center gap-2">
             <Link className="navbar-brand m-0 p-0" to="/">
-              <span className="h5">Don Jerseys Sporthouse</span>
+              <span className="h6">Don Jersey SportsHouse</span>
             </Link>
             <Link to="/products" className="nav-link d-none d-lg-block">Explore</Link>
           </div>
 
-          {/* Icons and Search Bar */}
-          <div className="d-flex align-items-center gap-2">
-            {/* Search Button and Search Bar */}
+          <div className="d-flex align-items-center gap-1">
             <button
               type="button"
               className="btn btn-outline-dark d-flex align-items-center justify-content-center"
-              style={{ width: '40px', height: '40px' }}
+              style={{ width: '35px', height: '35px' }}
               onClick={() => setShowSearchBar(!showSearchBar)}
             >
-              <FontAwesomeIcon icon={faSearch} />
+              <FontAwesomeIcon icon={faSearch} size="xs" />
             </button>
 
             {showSearchBar && (
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search for product"
-                value={searchTerm}
-                onChange={handleSearchChange}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit(e)}
-              />
+             <input
+    type="text"
+    className="form-control"
+    placeholder="Search for product"
+    value={searchTerm}
+    onChange={handleSearchChange}
+    onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit(e)}
+  />
             )}
 
             {/* Cart Button */}
             <button
               type="button"
               className="btn btn-outline-dark position-relative d-flex align-items-center justify-content-center"
-              style={{ width: '40px', height: '40px' }}
+              style={{ width: '35px', height: '35px' }}
               onClick={() => navigate('/cart')}
             >
-              <FontAwesomeIcon icon={faShoppingCart} />
+              <FontAwesomeIcon icon={faShoppingCart} size="xs" />
               {totalItems > 0 && (
                 <span className="badge bg-danger rounded-circle position-absolute top-0 end-0">
                   {totalItems}
@@ -115,8 +108,9 @@ function Header() {
                 type="button"
                 data-bs-toggle="dropdown"
                 aria-expanded="false"
+                style={{ width: '35px', height: '35px' }}
               >
-                <FontAwesomeIcon icon={faUserAlt} />
+                <FontAwesomeIcon icon={faUserAlt} size="xs" />
               </button>
               <ul className="dropdown-menu dropdown-menu-end">
                 {user ? (

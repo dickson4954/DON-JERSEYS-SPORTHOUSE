@@ -308,7 +308,10 @@ export default function ShippingPage() {
         <div className="row">
           {/* Shipping Address and Shipping Region Section */}
           <div className="col-12">
-            <h2 className="text-2xl font-semibold mb-4" style={{ color: "#007bff" }}>Shipping Address</h2>
+          <h2 className="text-2xl font-semibold mb-4" style={{ color: "#007bff", marginTop: "30px" }}>
+  Shipping Address
+</h2>
+
             <div className="row g-3">
               <div className="col-12">
                 <input

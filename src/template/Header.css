@@ -1,28 +1,52 @@
-/* Ensure the navbar items are aligned in a single row */
+/* Navbar should remain fixed */
 .navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-/* Adjust the brand name and icons for smaller screens */
-@media (max-width: 428px) {
-  /* Specific adjustments for iPhone 12 Pro (390px width) */
-  .navbar-brand {
-    font-size: 14px; /* Reduce font size for smaller screens */
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 0;
   }
-
-  .icon-buttons {
-    gap: 5px; /* Reduce spacing between icons */
+  body {
+    padding-top: 70px; /* Adjust depending on navbar height */
   }
-
-  .icon-buttons button {
-    width: 35px; /* Adjust button size for smaller screens */
-    height: 35px;
+  
+  
+  /* Search bar - initially hidden */
+  .search-wrapper {
+    position: absolute;
+    top: 100%; /* Push below navbar */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 400px;
+    display: none; /* Hide initially */
+    background: white;
+    padding: 8px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1050; /* Above content, below navbar */
   }
-
-  .icon-buttons input {
-    width: 100px; /* Adjust search bar width for smaller screens */
+  
+  /* Show search bar when toggled */
+  .search-wrapper.show {
+    display: block;
+    animation: slideDown 0.3s ease-out;
   }
-}
+  
+  /* Smooth slide-down effect */
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+  
+  /* Ensure proper display on mobile */
+  @media (max-width: 768px) {
+    .search-wrapper {
+      width: 90%;
+    }
+  }
