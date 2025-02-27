@@ -37,11 +37,11 @@ function ProductDetail() {
       .then(data => {
         console.log("Fetched Product:", data);
         
-        const sizes = data.variants ? data.variants.flatMap(v => 
+        const sizes = data.variants ? 
+        [...new Set(data.variants.flatMap(v => 
           v.size.includes('-') ? v.size.split('-').map(Number) : v.size.split(',')
-        ) : [];
-        
-  
+        ))] : [];
+      
         const editions = typeof data.editions === 'string' 
   ? data.editions.split(',').map(e => e.trim()) 
   : (Array.isArray(data.editions) ? data.editions : []);
