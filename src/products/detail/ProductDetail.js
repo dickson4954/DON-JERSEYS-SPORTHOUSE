@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import clsx from 'clsx';
+import Swal from 'sweetalert2';
 
 function ProductDetail() {
   const { id } = useParams();
@@ -26,7 +27,6 @@ function ProductDetail() {
     numberText: '',
     fontType: 'League Font',
   });
-  
   const [showWarning, setShowWarning] = useState(false);
   const selectionRef = useRef(null);
   const navigate = useNavigate();
@@ -36,23 +36,16 @@ function ProductDetail() {
       .then(response => response.json())
       .then(data => {
         console.log("Fetched Product:", data);
-        
-        const sizes = data.variants ? 
-        [...new Set(data.variants.flatMap(v => 
-          v.size.includes('-') ? v.size.split('-').map(Number) : v.size.split(',')
-        ))] : [];
-      
-        const editions = typeof data.editions === 'string' 
-  ? data.editions.split(',').map(e => e.trim()) 
-  : (Array.isArray(data.editions) ? data.editions : []);
 
-      
-  
-        console.log("Extracted Sizes:", sizes);
-        console.log("Extracted Editions:", editions);
-  
-        // Store updated product data with split sizes and editions
-        setProduct({ ...data, sizes, editions });
+        // Transform variants into sizesWithStock
+        const sizesWithStock = data.variants.map(variant => ({
+          size: variant.size,
+          stock: variant.stock,
+          edition: variant.edition,
+        }));
+
+        // Store updated product data with sizesWithStock
+        setProduct({ ...data, sizesWithStock });
         setLoading(false);
       })
       .catch(error => {
@@ -61,42 +54,30 @@ function ProductDetail() {
         console.error(error);
       });
   }, [id]);
-  
-  
-  
-  const categoryName = product?.category?.name;
-  console.log("Category:", product?.category);
- 
 
-
-
-  
-  
   if (loading) return <div className="text-center my-5">Loading...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!product) return <div className="text-center my-5">Product not found</div>;
 
-  const { name, image_url, price, description, stock, category, variants } = product;
+  const { name, image_url, price, description, stock, category, variants, sizesWithStock } = product;
 
-  const additionalPrice = 
-  (customOptions.printName ? 200 : 0) + 
-  (customOptions.printNumber ? 200 : 0) + 
-  (selectedBadge ? 100 : 0);
+  const additionalPrice =
+    (customOptions.printName ? 200 : 0) +
+    (customOptions.printNumber ? 200 : 0) +
+    (selectedBadge ? 100 : 0);
 
   const totalPrice = quantity * (price + additionalPrice);
-  
-
 
   const handleCustomOptionChange = (option) => {
     setCustomOptions(prev => ({ ...prev, [option]: !prev[option] }));
   };
 
   const handleQuantityChange = (amount) => {
-    setQuantity(prev => Math.max(1, prev + amount)); 
+    setQuantity(prev => Math.max(1, prev + amount));
   };
 
   const handleBadgeChange = (badge) => {
-    setSelectedBadge(prevBadge => prevBadge === badge ? '' : badge);
+    setSelectedBadge(prevBadge => (prevBadge === badge ? '' : badge));
   };
 
   const canAddToCart = selectedSize && (category.name === 'Jersey' ? selectedEdition : true);
@@ -107,26 +88,55 @@ function ProductDetail() {
       selectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
     }
-  
+
     const hasCustomization = customOptions.printName || customOptions.printNumber || customOptions.fontType || selectedBadge;
-  
-    // Pass the selectedSize to the addToCart function
-    addToCart({
-      id: product.id,
-      name: product.name,
-      price: price, 
-      image_url: product.image_url,
-      edition: selectedEdition,
-      badge: selectedBadge,
-      customName: customOptions.nameText,
-      customNumber: customOptions.numberText,
-      fontType: customOptions.fontType,
-      additionalPrice, 
-      hasCustomization, 
-    }, quantity, selectedSize); // Pass size here
+
+    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize);
+
+    if (!selectedVariant || selectedVariant.stock < quantity) {
+      Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize}.` });
+      return;
+    }
+
+    addToCart(
+      {
+        id: product.id,
+        name: product.name,
+        price: price,
+        image_url: product.image_url,
+        edition: selectedEdition,
+        badge: selectedBadge,
+        customName: customOptions.nameText,
+        customNumber: customOptions.numberText,
+        fontType: customOptions.fontType,
+        additionalPrice,
+        hasCustomization,
+        size: selectedSize,
+      },
+      quantity
+    );
+
+    fetch(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${id}/update-stock`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ size: selectedSize, edition: selectedEdition, quantity }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          setProduct(prev => ({
+            ...prev,
+            sizesWithStock: prev.sizesWithStock.map(v =>
+              v.size === selectedSize && v.edition === selectedEdition ? { ...v, stock: v.stock - quantity } : v
+            ),
+          }));
+        }
+      })
+      .catch(error => console.error('Error updating stock:', error));
+
     setCartCount(prevCount => prevCount + quantity);
   };
-  
+
   const badges = [
     { name: 'Europa', description: 'Europa Badge with Foundation + Ksh 100' },
     { name: 'Champions', description: 'Champions Badge with Foundation + Ksh 100' },
@@ -139,7 +149,7 @@ function ProductDetail() {
   const visibleBadges = showMoreBadges ? badges : badges.slice(0, 2);
 
   const buttonStyle = {
-    backgroundColor: canAddToCart ? '#008C95' : (stock > 0 ? '#A7E1E3' : '#ccc'),
+    backgroundColor: canAddToCart ? '#008C95' : stock > 0 ? '#A7E1E3' : '#ccc',
     color: '#ffffff',
     fontWeight: 'bold',
     padding: '8px 16px',
@@ -151,10 +161,7 @@ function ProductDetail() {
     border: 'none',
     borderRadius: '5px',
   };
-  console.log('Category:', category?.name);
-  console.log('Selected Edition:', selectedEdition);
-  console.log('Custom Options:', customOptions);
-  
+
   return (
     <div className="product-details-container">
       <div className="container product-details mt-5">
@@ -168,160 +175,163 @@ function ProductDetail() {
           <div className="col-lg-6">
             <h1 className="product-name">{name}</h1>
             <p>{description}</p>
-            <div className="size-selection mt-4">
-  <h5>* Select Size</h5>
-  <div className="size-box-container">
-    {product.sizes?.map((size, index) => (
-      <div 
-        key={index} 
-        className={clsx("size-box", { "selected": selectedSize === size })} // Apply 'selected' class
-        onClick={() => setSelectedSize(size)} // Set selected size
-      >
-        {size}
-      </div>
-    ))}
-  </div>
-</div>
+            <div className="size-selection mt-4" ref={selectionRef}>
+              <h5>* Select Size</h5>
+              <div className="size-box-container">
+                {sizesWithStock.map((variant, index) => (
+                  <div
+                    key={index}
+                    className={clsx('size-box', {
+                      selected: selectedSize === variant.size,
+                      'out-of-stock': variant.stock <= 0,
+                    })}
+                    onClick={() => {
+                      if (variant.stock > 0) {
+                        setSelectedSize(variant.size);
+                      }
+                    }}
+                  >
+                    {variant.size}
+                    {variant.stock <= 0 && <span className="out-of-stock-text"> (Sold Out)</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
 
+            {category.name === 'Jerseys' && (
+              <>
+                <h5 className={clsx('required-label', { 'warning-text': !selectedEdition && showWarning })}>
+                  * Select Kit Edition
+                </h5>
+                <div className="edition-selection mt-4">
+                  {product.editions.map((edition, index) => (
+                    <div
+                      key={index}
+                      className={clsx('edition-box', {
+                        selected: selectedEdition === edition,
+                        'warning-border': !selectedEdition && showWarning,
+                      })}
+                      onClick={() => setSelectedEdition(edition)}
+                    >
+                      {edition}
+                    </div>
+                  ))}
+                </div>
 
-           {/* Jersey Category: Edition and Customization Options */}
-{category?.name === 'Jerseys' && (
-  <>
-     {/* Kit Edition Section */}
-     <h5 className={clsx('required-label', { 'warning-text': !selectedEdition && showWarning })}>
-      * Select Kit Edition
-    </h5>
-    <div className="edition-selection mt-4">
-      {(typeof product.editions === 'string' ? product.editions.split(',') : product.editions)?.map((edition) => {
-        const trimmedEdition = edition.trim(); // Ensure no spaces affect selection
-        return (
-          <div 
-            key={trimmedEdition}
-            className={clsx('edition-box', { selected: selectedEdition === trimmedEdition, 'warning-border': !selectedEdition && showWarning })}
-            onClick={() => {
-              console.log(`Edition selected: ${trimmedEdition}`);  // Debugging
-              setSelectedEdition(trimmedEdition);
-            }}
-          >
-            {trimmedEdition}
-          </div>
-        );
-      })}
-    </div>
+                <div className="custom-options mt-3">
+                  <h5>Customization</h5>
+                  <div className="d-flex align-items-center">
+                    <label className="me-3">
+                      <input
+                        type="checkbox"
+                        checked={customOptions.printName}
+                        onChange={() => handleCustomOptionChange('printName')}
+                      />
+                      Print Name + Ksh 200
+                    </label>
+                    {customOptions.printName && (
+                      <input
+                        type="text"
+                        className="form-control me-3"
+                        placeholder="Enter Name"
+                        value={customOptions.nameText}
+                        onChange={(e) =>
+                          setCustomOptions(prev => ({
+                            ...prev,
+                            nameText: e.target.value.replace(/[^A-Za-z ]/g, ''),
+                          }))
+                        }
+                      />
+                    )}
+                  </div>
+                  <div className="d-flex align-items-center mt-2">
+                    <label className="me-3">
+                      <input
+                        type="checkbox"
+                        checked={customOptions.printNumber}
+                        onChange={() => handleCustomOptionChange('printNumber')}
+                      />
+                      Print Number + Ksh 200
+                    </label>
+                    {customOptions.printNumber && (
+                      <input
+                        type="text"
+                        className="form-control me-3"
+                        placeholder="Enter Number"
+                        value={customOptions.numberText}
+                        onChange={(e) =>
+                          setCustomOptions(prev => ({
+                            ...prev,
+                            numberText: e.target.value.replace(/[^0-9]/g, ''),
+                          }))
+                        }
+                      />
+                    )}
+                  </div>
+                  <div className="font-options mt-3">
+                    <h5>Font Type</h5>
+                    <label>
+                      <input
+                        type="radio"
+                        name="fontType"
+                        value="League Font"
+                        checked={customOptions.fontType === 'League Font'}
+                        onChange={() =>
+                          setCustomOptions(prev => ({ ...prev, fontType: 'League Font' }))
+                        }
+                      />
+                      LEAGUE FONT + Ksh 0
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="fontType"
+                        value="Team Font"
+                        checked={customOptions.fontType === 'Team Font'}
+                        onChange={() =>
+                          setCustomOptions(prev => ({ ...prev, fontType: 'Team Font' }))
+                        }
+                      />
+                      TEAM FONT + Ksh 0
+                    </label>
+                  </div>
 
+                  <div className="badge-options mt-3">
+                    <h5>Badge</h5>
+                    {visibleBadges.map((badge) => (
+                      <label key={badge.name}>
+                        <input
+                          type="radio"
+                          name="badge"
+                          checked={selectedBadge === badge.name}
+                          onChange={() => handleBadgeChange(badge.name)}
+                        />
+                        {badge.description}
+                      </label>
+                    ))}
+                    <button
+                      onClick={() => setShowMoreBadges(!showMoreBadges)}
+                      className="btn btn-link"
+                    >
+                      {showMoreBadges ? 'Show Less' : 'Show More'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
 
-    {/* Customization options */}
-    <div className="custom-options mt-3">
-      <h5>Customization</h5>
-      <div className="d-flex align-items-center">
-        <label className="me-3">
-          <input 
-            type="checkbox" 
-            checked={customOptions.printName} 
-            onChange={() => {
-              const newCustomOptions = { ...customOptions, printName: !customOptions.printName };
-              console.log('Updated Custom Options:', newCustomOptions);  // Debugging
-              setCustomOptions(newCustomOptions);
-            }} 
-          />
-          Print Name + Ksh 200
-        </label>
-        {customOptions.printName && (
-         <input 
-         type="text" 
-         className="form-control me-3" 
-         placeholder="Enter Name" 
-         value={customOptions.nameText} 
-         onChange={(e) => {
-           const newValue = e.target.value.replace(/[^A-Za-z ]/g, '');
-           setCustomOptions(prev => ({ ...prev, nameText: newValue }));
-         }}
-       />
-        )}
-      </div>
-      <div className="d-flex align-items-center mt-2">
-        <label className="me-3">
-          <input 
-            type="checkbox" 
-            checked={customOptions.printNumber} 
-            onChange={() => {
-              const updatedOptions = { ...customOptions, printNumber: !customOptions.printNumber };
-              setCustomOptions(updatedOptions);
-            }} 
-          />
-          Print Number + Ksh 200
-        </label>
-        {customOptions.printNumber && (
-          <input 
-          type="text" 
-          className="form-control me-3" 
-          placeholder="Enter Number" 
-          value={customOptions.numberText} 
-          onChange={(e) => {
-            const newValue = e.target.value.replace(/[^0-9]/g, '');
-            setCustomOptions(prev => ({ ...prev, numberText: newValue }));
-          }}
-        />
-        )}
-      </div>
-      <div className="font-options mt-3">
-        <h5>Font Type </h5>
-        <label>
-          <input type="radio" name="fontType" value="League Font" onChange={() => {
-            const updatedOptions = { ...customOptions, fontType: 'League Font' };
-            setCustomOptions(updatedOptions);
-          }} /> 
-          LEAGUE FONT + Ksh 0
-        </label>
-        <label>
-          <input type="radio" name="fontType" value="Team Font" onChange={() => {
-            const updatedOptions = { ...customOptions, fontType: 'Team Font' };
-            setCustomOptions(updatedOptions);
-          }} /> 
-          TEAM FONT + Ksh 0
-        </label>
-      </div>
-
-      {/* Badge options */}
-      <div className="badge-options mt-3">
-        <h5>Badge </h5>
-        {visibleBadges.map(badge => (
-          <label key={badge.name}>
-            <input 
-              type="radio" 
-              name="badge" 
-              checked={selectedBadge === badge.name}
-              onChange={() => handleBadgeChange(badge.name)}
-            /> 
-            {badge.description}
-          </label>
-        ))}
-        <button 
-          onClick={() => setShowMoreBadges(!showMoreBadges)} 
-          className="btn btn-link"
-        >
-          {showMoreBadges ? 'Show Less' : 'Show More'}
-        </button>
-      </div>
-    </div>
-  </>
-)}
-
-
-
-            {/* Quantity and price section */}
             <div className="quantity-selection mt-4">
               <div className="d-flex align-items-center">
-                <button 
-                  className="btn btn-outline-secondary" 
-                  onClick={() => handleQuantityChange(-1)} 
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
                 >
                   <FontAwesomeIcon icon={faMinus} />
                 </button>
                 <span className="mx-3">{quantity}</span>
-                <button 
-                  className="btn btn-outline-secondary" 
+                <button
+                  className="btn btn-outline-secondary"
                   onClick={() => handleQuantityChange(1)}
                 >
                   <FontAwesomeIcon icon={faPlus} />
@@ -332,7 +342,6 @@ function ProductDetail() {
               </div>
             </div>
 
-            {/* Add to Cart Button */}
             <div className="d-flex flex-column mt-3">
               <div className="d-flex justify-content-end gap-2 mt-2">
                 <button
@@ -347,7 +356,7 @@ function ProductDetail() {
 
                 <button
                   className="btn btn-sm"
-                  onClick={() => navigate('/cart')} // Navigate to cart page
+                  onClick={() => navigate('/cart')}
                   style={{
                     border: '1px solid #A7E1E3',
                     color: '#008C95',

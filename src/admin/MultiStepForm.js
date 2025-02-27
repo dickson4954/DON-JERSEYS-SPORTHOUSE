@@ -80,18 +80,18 @@ const MultiStepForm = () => {
 
   const validateStep = () => {
     const newErrors = {};
-  
+
     // Product Details (Step 1)
     if (step === 1) {
       if (!formData.name) newErrors.name = 'Product name is required';
       if (!formData.description) newErrors.description = 'Product description is required';
       if (formData.variants.length === 0) newErrors.variants = 'At least one variant is required';
-  
+
       formData.variants.forEach((variant, index) => {
         if (!variant.size) {
           newErrors[`variants.${index}.size`] = 'Size is required';
         }
-  
+
         // Edition is optional at this stage for both shoes and jerseys
         // Just check if stock and size are valid
         if (variant.stock === '' || variant.stock < 0) {
@@ -99,11 +99,10 @@ const MultiStepForm = () => {
         }
       });
     }
-  
+
     // Other steps...
     return Object.keys(newErrors).length === 0;
   };
-  
 
   const nextStep = () => {
     if (validateStep()) setStep((prevStep) => prevStep + 1);

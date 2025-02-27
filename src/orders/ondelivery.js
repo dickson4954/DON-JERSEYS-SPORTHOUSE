@@ -36,17 +36,17 @@ export default function Ondelivery() {
 
   // Function to post order data to the /orders route
   const handleOrderNow = async () => {
-    // Form validation to ensure required fields are filled
     if (!formData.region || !formData.name || !formData.phoneNumber || !formData.physicalAddress) {
       alert("Please fill in all required fields before placing the order.");
       return;
     }
-
+  
     setLoading(true);
     setOrderStatus(null);
-
+  
     const orderData = {
       cart: cart.map((item) => ({
+        product_id: item.id, // Include product ID
         name: item.name,
         quantity: item.quantity,
         size: item.size || "N/A",
@@ -56,7 +56,6 @@ export default function Ondelivery() {
         fontType: item.fontType || "",
         badge: item.badge || "",
         price: item.price,
-        // product_variant_id: Number(item.product_variant_id) || 1, // Ensure numeric ID
       })),
       shipping_details: {
         name: formData.name?.trim() || "",
@@ -66,47 +65,47 @@ export default function Ondelivery() {
       },
       total_price: totalPrice,
     };
-    
-
+  
     console.log("Order Data to be Posted:", orderData);
-
+  
     try {
-      const response = await fetch("https://donjerseyssporthouseserver-5-cmus.onrender.com/orders", {
+      const response = await fetch("http://127.0.0.1:5000/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(orderData),
       });
-      
-      const data = await response.json();
-      console.log('Response Data:', data); // Log the response from the server
-      
+  
+      const rawResponse = await response.text();
+      console.log("Raw Response:", rawResponse);
+  
+      const data = JSON.parse(rawResponse);
+      console.log('Response Data:', data);
+  
       if (!response.ok) {
         throw new Error(`Server Error: ${response.status} ${response.statusText}`);
       }
-     
+  
       if (data.success) {
         console.log("Order placed successfully:", data);
         setOrderStatus("success");
-
-        // Show SweetAlert after successful order placement
+  
         Swal.fire({
           icon: 'success',
           title: 'Order placed!',
           text: 'Your order will arrive in 1 business day. Payment will be collected upon delivery.',
           confirmButtonText: 'OK',
-          timer: 9000, // Optional: close after 9 seconds
+          timer: 9000,
         });
-
-        // Reset form and cart after successful order placement
+  
         setFormData({
           physicalAddress: "",
           phoneNumber: "",
           region: "",
           name: "",
         });
-        setCart([]); // Clear the cart
+        setCart([]);
       } else {
         setOrderStatus("failed");
         throw new Error(data.message || "Failed to place order.");
@@ -114,8 +113,7 @@ export default function Ondelivery() {
     } catch (error) {
       console.error("Error placing order:", error);
       setOrderStatus("error");
-
-      // Show SweetAlert for errors
+  
       Swal.fire({
         icon: 'error',
         title: 'An error occurred',
@@ -126,7 +124,6 @@ export default function Ondelivery() {
       setLoading(false);
     }
   };
-
   // Calculate shipping fee based on region
   const calculateShippingFee = (region) => {
     let fee = 0;
