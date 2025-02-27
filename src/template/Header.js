@@ -4,6 +4,7 @@ import { faSearch, faShoppingCart, faUserAlt } from '@fortawesome/free-solid-svg
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import CartContext from '../CartContext';
 import AuthModal from '../user/AuthModal';
+import "./Header.css"
 
 function Header() {
   const { cart } = useContext(CartContext);
@@ -61,6 +62,7 @@ function Header() {
     <header>
       <nav className="navbar fixed-top navbar-expand-lg navbar-light bg-white border-bottom">
         <div className="container-fluid d-flex align-items-center justify-content-between">
+          {/* Brand Name and Explore Link */}
           <div className="d-flex align-items-center gap-3">
             <Link className="navbar-brand m-0 p-0" to="/">
               <span className="h5">Don Jerseys Sporthouse</span>
@@ -68,7 +70,9 @@ function Header() {
             <Link to="/products" className="nav-link d-none d-lg-block">Explore</Link>
           </div>
 
+          {/* Icons and Search Bar */}
           <div className="d-flex align-items-center gap-2">
+            {/* Search Button and Search Bar */}
             <button
               type="button"
               className="btn btn-outline-dark d-flex align-items-center justify-content-center"
@@ -89,6 +93,7 @@ function Header() {
               />
             )}
 
+            {/* Cart Button */}
             <button
               type="button"
               className="btn btn-outline-dark position-relative d-flex align-items-center justify-content-center"
@@ -103,6 +108,7 @@ function Header() {
               )}
             </button>
 
+            {/* User Dropdown (Hidden on Mobile) */}
             <div className="dropdown d-none d-lg-block">
               <button
                 className="btn btn-outline-dark dropdown-toggle"
@@ -127,13 +133,19 @@ function Header() {
               </ul>
             </div>
 
-            <button className="navbar-toggler d-lg-none" type="button" onClick={() => setOpenedDrawer(!openedDrawer)}>
+            {/* Mobile Toggle Button */}
+            <button
+              className="navbar-toggler d-lg-none"
+              type="button"
+              onClick={() => setOpenedDrawer(!openedDrawer)}
+            >
               <span className="navbar-toggler-icon"></span>
             </button>
           </div>
         </div>
       </nav>
 
+      {/* Mobile Drawer */}
       <div className={`offcanvas offcanvas-end ${openedDrawer ? 'show' : ''}`} style={{ width: '250px' }}>
         <div className="offcanvas-header">
           <button type="button" className="btn-close" onClick={() => setOpenedDrawer(false)}></button>
@@ -155,6 +167,7 @@ function Header() {
         </div>
       </div>
 
+      {/* Auth Modal */}
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} isSignup={isSignup} />
     </header>
   );

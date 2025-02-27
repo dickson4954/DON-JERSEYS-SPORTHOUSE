@@ -1,64 +1,28 @@
-/* Ensures everything is aligned in one row */
+/* Ensure the navbar items are aligned in a single row */
 .navbar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-  }
-  
-  /* Main container with proper spacing */
-  .container-fluid {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    padding: 0 15px;
-  }
-  
-  /* Brand name styling */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* Adjust the brand name and icons for smaller screens */
+@media (max-width: 428px) {
+  /* Specific adjustments for iPhone 12 Pro (390px width) */
   .navbar-brand {
-    font-weight: bold;
-    white-space: nowrap;
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    height: 50px; /* Ensures consistent height */
-    margin: 0;
+    font-size: 14px; /* Reduce font size for smaller screens */
   }
-  
-  /* Ensures buttons align in a straight line */
+
   .icon-buttons {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
+    gap: 5px; /* Reduce spacing between icons */
   }
-  
-  /* Style for individual buttons */
-  .icon-buttons button,
-  .navbar-toggler {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 40px;
-    width: 40px;
-    border: none;
-    background: transparent;
+
+  .icon-buttons button {
+    width: 35px; /* Adjust button size for smaller screens */
+    height: 35px;
   }
-  
-  /* Fixes the alignment on all screen sizes */
-  @media (max-width: 768px) {
-    .container-fluid {
-      flex-wrap: nowrap;
-    }
-  
-    .icon-buttons {
-      gap: 5px; /* Reduce spacing */
-    }
-  
-    .navbar-brand {
-      font-size: 16px;
-      height: auto;
-    }
+
+  .icon-buttons input {
+    width: 100px; /* Adjust search bar width for smaller screens */
   }
-  
+}
