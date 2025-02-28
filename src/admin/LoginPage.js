@@ -40,7 +40,7 @@ const LoginPage = () => {
       return;
     }
 
-    const url = isLogin ? 'https://donjerseyssporthouseserver-5-cmus.onrender.com/login' : 'https://donjerseyssporthouseserver-5-cmus.onrender.com/signup';
+    const url = isLogin ? 'https://donjerseyssporthouseserver-71ee.onrender.com/login' : 'https://donjerseyssporthouseserver-71ee.onrender.comm/signup';
     const requestData = isLogin
       ? { username: formData.username, password: formData.password }
       : { username: formData.username, email: formData.email, password: formData.password };

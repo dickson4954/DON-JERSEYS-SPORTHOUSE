@@ -3,26 +3,26 @@ import Swal from 'sweetalert2';
 import './MultiStepForm.css';
 
 const MultiStepForm = () => {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(1); // Current step in the form
   const [formData, setFormData] = useState({
-    productType: '',  // 'shoe' or 'jersey'
+    productType: '', // 'shoe' or 'jersey'
     name: '',
     description: '',
     price: '',
     category_id: '',
-    variants: [{ size: '', edition: '', stock: 0 }],
-    imageUrl: ''
+    variants: [{ size: '', edition: '', stock: 0 }], // Initial variant
+    imageUrl: '',
   });
 
-  const [imageFile, setImageFile] = useState(null);
-  const [errors, setErrors] = useState({});
-  const [categories, setCategories] = useState([]);
+  const [imageFile, setImageFile] = useState(null); // File object for image upload
+  const [errors, setErrors] = useState({}); // Validation errors
+  const [categories, setCategories] = useState([]); // Fetched categories
 
   // Fetch categories on component mount
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('https://donjerseyssporthouseserver-5-cmus.onrender.com/categories');
+        const response = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/categories');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         console.log('Fetched Categories:', data); // Debugging the response
@@ -30,8 +30,8 @@ const MultiStepForm = () => {
         if (Array.isArray(data)) {
           // Map the response to match expected keys in the dropdown
           const formattedCategories = data.map(cat => ({
-            id: cat.category_id,   // Ensure "id" is set correctly
-            name: cat.category_name // Ensure "name" is set correctly
+            id: cat.category_id, // Ensure "id" is set correctly
+            name: cat.category_name, // Ensure "name" is set correctly
           }));
 
           setCategories(formattedCategories);
@@ -47,12 +47,14 @@ const MultiStepForm = () => {
     fetchCategories();
   }, []);
 
+  // Handle input changes for non-variant fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
+  // Handle input changes for variant fields
   const handleVariantChange = (index, e) => {
     const { name, value } = e.target;
     const updatedVariants = [...formData.variants];
@@ -61,23 +63,27 @@ const MultiStepForm = () => {
     setErrors((prev) => ({ ...prev, variants: '' }));
   };
 
+  // Add a new variant
   const addVariant = () => {
     setFormData((prev) => ({
       ...prev,
-      variants: [...prev.variants, { size: '', edition: '', stock: 0 }]
+      variants: [...prev.variants, { size: '', edition: '', stock: 0 }],
     }));
   };
 
+  // Remove a variant
   const removeVariant = (index) => {
     const updatedVariants = formData.variants.filter((_, i) => i !== index);
     setFormData((prev) => ({ ...prev, variants: updatedVariants }));
   };
 
+  // Handle image file selection
   const handleImageChange = (e) => {
     setImageFile(e.target.files[0]);
     setErrors((prev) => ({ ...prev, imageUrl: '' }));
   };
 
+  // Validate the current step
   const validateStep = () => {
     const newErrors = {};
 
@@ -91,35 +97,48 @@ const MultiStepForm = () => {
         if (!variant.size) {
           newErrors[`variants.${index}.size`] = 'Size is required';
         }
-
-        // Edition is optional at this stage for both shoes and jerseys
-        // Just check if stock and size are valid
         if (variant.stock === '' || variant.stock < 0) {
           newErrors[`variants.${index}.stock`] = 'Stock must be a non-negative number';
         }
       });
     }
 
-    // Other steps...
+    // Pricing (Step 2)
+    if (step === 2) {
+      if (!formData.price || formData.price < 0) {
+        newErrors.price = 'Price must be a non-negative number';
+      }
+    }
+
+    // Category and Image (Step 3)
+    if (step === 3) {
+      if (!formData.category_id) newErrors.category_id = 'Category is required';
+      if (!imageFile && !formData.imageUrl) newErrors.imageUrl = 'Image is required';
+    }
+
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
+  // Move to the next step
   const nextStep = () => {
     if (validateStep()) setStep((prevStep) => prevStep + 1);
   };
 
+  // Move to the previous step
   const prevStep = () => setStep((prevStep) => prevStep - 1);
 
+  // Handle form submission
   const handleSubmit = async () => {
     if (!validateStep()) return;
 
     let imageUrl = formData.imageUrl;
     if (imageFile) {
       const imageData = new FormData();
-      imageData.append('file', imageFile);  // Ensure the field name is 'file'
+      imageData.append('file', imageFile); // Ensure the field name is 'file'
 
       try {
-        const response = await fetch('https://donjerseyssporthouseserver-5-cmus.onrender.com/upload', {
+        const response = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/upload', {
           method: 'POST',
           body: imageData,
         });
@@ -129,7 +148,7 @@ const MultiStepForm = () => {
         if (response.ok && uploadResult.image_url) {
           imageUrl = uploadResult.image_url;
         } else {
-          console.error("Upload result:", uploadResult);  // Log the result for debugging
+          console.error('Upload result:', uploadResult); // Log the result for debugging
           Swal.fire({ icon: 'error', title: 'Image Upload Failed', text: 'Please try uploading the image again.' });
           return;
         }
@@ -146,19 +165,19 @@ const MultiStepForm = () => {
       description: formData.description,
       price: parseFloat(formData.price),
       category_id: parseInt(formData.category_id, 10), // Ensure category_id is a number
-      variants: formData.variants.map(variant => ({
+      variants: formData.variants.map((variant) => ({
         size: variant.size,
         edition: variant.edition,
-        stock: parseInt(variant.stock, 10)
+        stock: parseInt(variant.stock, 10),
       })),
-      imageUrl: imageUrl
+      imageUrl: imageUrl,
     };
 
     try {
-      const productResponse = await fetch('https://donjerseyssporthouseserver-5-cmus.onrender.com/products', {
+      const productResponse = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       if (productResponse.ok) {
@@ -175,56 +194,7 @@ const MultiStepForm = () => {
     }
   };
 
-  const renderVariantSection = () => {
-    if (formData.productType === 'shoe') {
-      return (
-        <div className="shoe-variants">
-          <h3>Select Shoe Sizes</h3>
-          <div className="shoe-sizes">
-            {[...Array(9).keys()].map(i => {
-              const size = 32 + i; // Size from 32 to 40
-              return (
-                <div key={size} className="shoe-size">
-                  <label>
-                    <input
-                      type="checkbox"
-                      name="size"
-                      value={size}
-                      onChange={(e) => handleVariantChange(0, e)} // Update the size of the first variant
-                    />
-                    {size}
-                  </label>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      );
-    } else if (formData.productType === 'jersey') {
-      return (
-        <div className="jersey-variants">
-          <h3>Select Sizes</h3>
-          <div className="jersey-sizes">
-            {['S', 'M', 'L', 'XL'].map((size) => (
-              <div key={size} className="jersey-size">
-                <label>
-                  <input
-                    type="checkbox"
-                    name="size"
-                    value={size}
-                    onChange={(e) => handleVariantChange(0, e)} // Update the size of the first variant
-                  />
-                  {size}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
-
+  // Render the form based on the current step
   return (
     <>
       {step === 1 && (
@@ -268,7 +238,6 @@ const MultiStepForm = () => {
           ))}
           <button type="button" onClick={addVariant}>Add Another Variant</button>
           {errors.variants && <p className="error">{errors.variants}</p>}
-          {renderVariantSection()}
           <button onClick={nextStep}>Next</button>
         </div>
       )}
@@ -294,7 +263,6 @@ const MultiStepForm = () => {
               <option disabled>Loading categories...</option>
             )}
           </select>
-
           {errors.category_id && <p className="error">{errors.category_id}</p>}
           <input type="file" onChange={handleImageChange} />
           {errors.imageUrl && <p className="error">{errors.imageUrl}</p>}

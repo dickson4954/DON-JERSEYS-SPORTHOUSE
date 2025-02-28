@@ -40,7 +40,7 @@ function ProductList() {
 
   // Fetch categories
   useEffect(() => {
-    fetch("https://donjerseyssporthouseserver-5-cmus.onrender.com/categories")
+    fetch("https://donjerseyssporthouseserver-71ee.onrender.com/categories")
       .then((response) => response.json())
       .then((data) => {
         setCategories([
@@ -53,7 +53,7 @@ function ProductList() {
 
   // Fetch products
   useEffect(() => {
-    fetch("https://donjerseyssporthouseserver-5-cmus.onrender.com/products")
+    fetch("https://donjerseyssporthouseserver-71ee.onrender.com/products")
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched Products:", data);  // Debugging step

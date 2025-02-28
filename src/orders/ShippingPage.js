@@ -92,7 +92,7 @@ export default function ShippingPage() {
 
     try {
       // Step 1: Initiate payment
-      const paymentResponse = await axios.post("https://donjerseyssporthouseserver-5-cmus.onrender.com/pay", {
+      const paymentResponse = await axios.post("https://donjerseyssporthouseserver-71ee.onrender.com/pay", {
         phone_number: paymentPhoneNumber,
         amount: totalPrice,
       });

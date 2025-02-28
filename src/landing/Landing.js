@@ -18,7 +18,7 @@ function Landing() {
   const location = useLocation();
 
   useEffect(() => {
-    axios.get('https://donjerseyssporthouseserver-5-cmus.onrender.com/products?limit=6&sort=created_at_desc')
+    axios.get('https://donjerseyssporthouseserver-71ee.onrender.com/products?limit=6&sort=created_at_desc')
       .then(response => {
         setProducts(response.data);
         setFilteredProducts(response.data); // Initialize filtered products

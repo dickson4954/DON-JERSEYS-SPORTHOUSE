@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import CartContext from '../../CartContext';
 import './ProductDetails.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
-import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faShoppingCart, faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
 import clsx from 'clsx';
 import Swal from 'sweetalert2';
 
@@ -32,7 +31,7 @@ function ProductDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${id}`)
+    fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}`)
       .then(response => response.json())
       .then(data => {
         console.log("Fetched Product:", data);
@@ -59,7 +58,7 @@ function ProductDetail() {
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!product) return <div className="text-center my-5">Product not found</div>;
 
-  const { name, image_url, price, description, stock, category, variants, sizesWithStock } = product;
+  const { name, image_url, price, description, category, variants, sizesWithStock } = product;
 
   const additionalPrice =
     (customOptions.printName ? 200 : 0) +
@@ -116,7 +115,7 @@ function ProductDetail() {
       quantity
     );
 
-    fetch(`https://donjerseyssporthouseserver-5-cmus.onrender.com/products/${id}/update-stock`, {
+    fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}/update-stock`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ size: selectedSize, edition: selectedEdition, quantity }),
@@ -127,12 +126,11 @@ function ProductDetail() {
           setProduct(prev => ({
             ...prev,
             sizesWithStock: prev.sizesWithStock.map(v =>
-              v.size === selectedSize && v.edition === selectedEdition 
-                ? { ...v, stock: v.stock - quantity } 
+              v.size === selectedSize && v.edition === selectedEdition
+                ? { ...v, stock: v.stock - quantity }
                 : v
             ),
           }));
-          
         }
       })
       .catch(error => console.error('Error updating stock:', error));
@@ -152,7 +150,7 @@ function ProductDetail() {
   const visibleBadges = showMoreBadges ? badges : badges.slice(0, 2);
 
   const buttonStyle = {
-    backgroundColor: canAddToCart ? '#008C95' : stock > 0 ? '#A7E1E3' : '#ccc',
+    backgroundColor: canAddToCart ? '#008C95' : '#A7E1E3',
     color: '#ffffff',
     fontWeight: 'bold',
     padding: '8px 16px',
@@ -171,7 +169,6 @@ function ProductDetail() {
         <div className="row">
           <div className="col-lg-6">
             <div className="product-image">
-              {stock === 0 && <div className="sold-out-badge">Out of Stock</div>}
               <img src={image_url} alt={name} className="img-fluid" />
             </div>
           </div>
@@ -181,78 +178,87 @@ function ProductDetail() {
             <div className="size-selection mt-4" ref={selectionRef}>
               <h5>* Select Size</h5>
               <div className="size-box-container">
-              <div className="size-box-container">
-  {sizesWithStock
-    .filter(variant => selectedEdition ? variant.edition === selectedEdition : true)
-    .map((variant, index) => {
-      const isOutOfStock = variant.stock <= 0;
+                {sizesWithStock
+                  .filter(variant => selectedEdition ? variant.edition === selectedEdition : true)
+                  .map((variant, index) => {
+                    const isOutOfStock = variant.stock <= 0;
 
-      return (
-        <div
-          key={index}
-          className={clsx('size-box', {
-            selected: selectedSize === variant.size,
-            'out-of-stock': isOutOfStock,
-          })}
-          onClick={() => {
-            if (!isOutOfStock) {
-              setSelectedSize(variant.size);
-            }
-          }}
-        >
-          {variant.size}
-      
-        </div>
-      );
-    })}
-
-
-{/*   
-  {/* Show a message if no sizes are available for the selected edition */}
-  {/* {sizesWithStock.filter(variant => variant.edition === selectedEdition && variant.stock > 0).length === 0 && (
-    <p className="text-danger mt-2">No available sizes for this edition.</p>
-  )} */}
-</div> 
-
+                    return (
+                      <div
+                        key={index}
+                        className={clsx('size-box', {
+                          selected: selectedSize === variant.size,
+                          'out-of-stock': isOutOfStock,
+                        })}
+                        onClick={() => {
+                          if (!isOutOfStock) {
+                            setSelectedSize(variant.size);
+                          }
+                        }}
+                        style={{
+                          opacity: isOutOfStock ? 0.5 : 1,
+                          cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                        }}
+                        disabled={isOutOfStock}
+                      >
+                        {variant.size}
+                        {isOutOfStock && <span className="sold-out-text">Sold Out</span>}
+                      </div>
+                    );
+                  })}
               </div>
             </div>
 
             {category.name === 'Jerseys' && (
               <>
-                <h5 className={clsx('required-label', { 'warning-text': !selectedEdition && showWarning })}>
-                  * Select Kit Edition
-                </h5>
-                <div className="edition-selection mt-4">
-                {product.editions.map((edition, index) => {
-  // Check if all sizes for this edition are out of stock
-  const editionStock = sizesWithStock.filter(v => v.edition === edition);
-  const isOutOfStock = editionStock.every(v => v.stock <= 0); // Ensure all sizes for this edition are out of stock
+                 <h5 className={clsx('required-label', { 'warning-text': !selectedEdition && showWarning })}>
+      * Select Kit Edition
+    </h5>
+    <div className="edition-selection mt-4">
+      {/* Group editions by type */}
+      {['Player Edition', 'Fan Edition'].map((editionType) => (
+        <div key={editionType} className="edition-type-container">
+          <h6>{editionType}</h6>
+          <div className="d-flex flex-wrap gap-2">
+            {product.editions
+              .filter((edition) => edition.includes(editionType)) // Filter editions by type
+              .map((edition, index) => {
+                const editionStock = sizesWithStock.filter((v) => v.edition === edition);
+                const isOutOfStock = editionStock.every((v) => v.stock <= 0);
 
-  return (
-    <div
-      key={index}
-      className={clsx('edition-box', {
-        selected: selectedEdition === edition,
-        'out-of-stock': isOutOfStock, // Apply out-of-stock styling
-      })}
-      onClick={() => {
-        if (!isOutOfStock) {
-          setSelectedEdition(edition);
-        }
-      }}
-    >
-      <span
-        style={{
-          textDecoration: isOutOfStock ? 'line-through' : 'none',
-        }}
-      >
-        {edition}
-      </span>
+                return (
+                  <div
+                    key={index}
+                    className={clsx('edition-box', {
+                      selected: selectedEdition === edition,
+                      'out-of-stock': isOutOfStock,
+                    })}
+                    onClick={() => {
+                      if (!isOutOfStock) {
+                        setSelectedEdition(edition);
+                        setSelectedSize(''); // Reset selected size when edition changes
+                      }
+                    }}
+                    style={{
+                      opacity: isOutOfStock ? 0.5 : 1,
+                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                    }}
+                    disabled={isOutOfStock}
+                  >
+                    <span
+                      style={{
+                        textDecoration: isOutOfStock ? 'line-through' : 'none',
+                      }}
+                    >
+                      {edition}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      ))}
     </div>
-  );
-})}
-
-</div>
 
                 <div className="custom-options mt-3">
                   <h5>Customization</h5>
@@ -383,7 +389,7 @@ function ProductDetail() {
                 <button
                   className="btn btn-sm"
                   style={buttonStyle}
-                  disabled={!canAddToCart || stock <= 0}
+                  disabled={!canAddToCart}
                   onClick={handleAddToCart}
                 >
                   <FontAwesomeIcon icon={faShoppingCart} />
