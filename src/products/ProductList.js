@@ -87,8 +87,9 @@ function ProductList() {
       setFilteredProducts(filtered);
     } else if (selectedCategory !== "All Products") {
       const filtered = products.filter(
-        (product) => product.category === selectedCategory
+        (product) => product.category?.name === selectedCategory
       );
+      
       setFilteredProducts(filtered);
     } else {
       setFilteredProducts(products);
@@ -157,55 +158,60 @@ function ProductList() {
                     (viewType.grid ? "row-cols-xl-3" : "row-cols-xl-2")
                   }
                 >
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
-                      <div key={product.id} className="col">
-                        <div className="card product-card shadow-sm hover-effect">
-                          <Link
-                            to={`/products/${product.id}`}
-                            state={{
-                              id: product.id,
-                              name: product.name,
-                              image: product.image_url,
-                              price: product.price,
-                              description: product.description,
-                              team: product.team,
-                            }}
-                          >
-                            <img
-                              className="card-img-top product-image"
-                              alt={product.name}
-                              src={product.image_url}
-                            />
-                          </Link>
-                          <div className="card-body text-center">
-                            <h5 className="product-name">{product.name}</h5>
-                            <div className="price-details-container">
-                              <p className="product-price">{product.price} Ksh</p>
-                              <Link
-                                to={`/products/${product.id}`}
-                                state={{
-                                  id: product.id,
-                                  name: product.name,
-                                  image: product.image_url,
-                                  price: product.price,
-                                  description: product.description,
-                                  team: product.team,
-                                }}
-                                className="view-details-link"
-                                replace
-                              >
-                                <FaEye className="view-details-icon" /> View
-                                Details
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-center">No products available.</p>
-                  )}
+   {filteredProducts.length > 0 ? (
+  filteredProducts.map((product) => {
+    const allSizesSoldOut =
+    !product.variants || 
+    product.variants.length === 0 || 
+    product.variants.every((variant) => Number(variant.stock) === 0);
+  
+    console.log("Checking product:", product.name);
+    console.log("Product Variants:", product.variants);
+    console.log("All Sizes Sold Out:", allSizesSoldOut);
+
+    return (
+      <div key={product.id} className="col">
+        <div className="card product-card shadow-sm hover-effect position-relative">
+          {/* Sold Out Banner */}
+          {allSizesSoldOut && (
+            <div className="sold-out-overlay">
+              <span className="sold-out-text">Sold Out</span>
+            </div>
+          )}
+
+          {/* Product Image with Link */}
+          <Link
+            to={!allSizesSoldOut ? `/products/${product.id}` : "#"}
+            state={product}
+            className={!allSizesSoldOut ? "" : "disabled-link"}
+          >
+            <img
+              className="card-img-top product-image"
+              alt={product.name}
+              src={product.image_url || "/default-placeholder.jpg"}
+            />
+          </Link>
+
+          <div className="card-body text-center">
+            <h5 className="product-name">{product.name}</h5>
+            <p className="product-price">{product.price} Ksh</p>
+            {!allSizesSoldOut ? (
+              <Link to={`/products/${product.id}`} state={product}>
+                <FaEye className="view-details-icon" /> View Details
+              </Link>
+            ) : (
+              <span className="sold-out-message">Sold Out</span>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  })
+) : (
+  <p className="text-center">No products available.</p>
+)}
+
+
                 </div>
               </div>
             </div>

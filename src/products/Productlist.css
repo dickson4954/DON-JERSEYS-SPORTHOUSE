@@ -118,3 +118,34 @@
   z-index: 1000;
   background-color: white;
 }
+.sold-out-overlay {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: red;
+  color: white;
+  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  transform: rotate(-20deg);
+  z-index: 10;
+  border-radius: 5px;
+}
+
+
+
+.sold-out-text {
+  background: red;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.sold-out-message {
+  color: red;
+  font-weight: bold;
+}
+
+.disabled-link {
+  pointer-events: none;
+  opacity: 0.5;
+}

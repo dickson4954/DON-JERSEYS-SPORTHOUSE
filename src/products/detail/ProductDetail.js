@@ -127,9 +127,12 @@ function ProductDetail() {
           setProduct(prev => ({
             ...prev,
             sizesWithStock: prev.sizesWithStock.map(v =>
-              v.size === selectedSize && v.edition === selectedEdition ? { ...v, stock: v.stock - quantity } : v
+              v.size === selectedSize && v.edition === selectedEdition 
+                ? { ...v, stock: v.stock - quantity } 
+                : v
             ),
           }));
+          
         }
       })
       .catch(error => console.error('Error updating stock:', error));
@@ -178,23 +181,39 @@ function ProductDetail() {
             <div className="size-selection mt-4" ref={selectionRef}>
               <h5>* Select Size</h5>
               <div className="size-box-container">
-                {sizesWithStock.map((variant, index) => (
-                  <div
-                    key={index}
-                    className={clsx('size-box', {
-                      selected: selectedSize === variant.size,
-                      'out-of-stock': variant.stock <= 0,
-                    })}
-                    onClick={() => {
-                      if (variant.stock > 0) {
-                        setSelectedSize(variant.size);
-                      }
-                    }}
-                  >
-                    {variant.size}
-                    {variant.stock <= 0 && <span className="out-of-stock-text"> (Sold Out)</span>}
-                  </div>
-                ))}
+              <div className="size-box-container">
+  {sizesWithStock
+    .filter(variant => selectedEdition ? variant.edition === selectedEdition : true)
+    .map((variant, index) => {
+      const isOutOfStock = variant.stock <= 0;
+
+      return (
+        <div
+          key={index}
+          className={clsx('size-box', {
+            selected: selectedSize === variant.size,
+            'out-of-stock': isOutOfStock,
+          })}
+          onClick={() => {
+            if (!isOutOfStock) {
+              setSelectedSize(variant.size);
+            }
+          }}
+        >
+          {variant.size}
+      
+        </div>
+      );
+    })}
+
+
+{/*   
+  {/* Show a message if no sizes are available for the selected edition */}
+  {/* {sizesWithStock.filter(variant => variant.edition === selectedEdition && variant.stock > 0).length === 0 && (
+    <p className="text-danger mt-2">No available sizes for this edition.</p>
+  )} */}
+</div> 
+
               </div>
             </div>
 
@@ -204,19 +223,36 @@ function ProductDetail() {
                   * Select Kit Edition
                 </h5>
                 <div className="edition-selection mt-4">
-                  {product.editions.map((edition, index) => (
-                    <div
-                      key={index}
-                      className={clsx('edition-box', {
-                        selected: selectedEdition === edition,
-                        'warning-border': !selectedEdition && showWarning,
-                      })}
-                      onClick={() => setSelectedEdition(edition)}
-                    >
-                      {edition}
-                    </div>
-                  ))}
-                </div>
+                {product.editions.map((edition, index) => {
+  // Check if all sizes for this edition are out of stock
+  const editionStock = sizesWithStock.filter(v => v.edition === edition);
+  const isOutOfStock = editionStock.every(v => v.stock <= 0); // Ensure all sizes for this edition are out of stock
+
+  return (
+    <div
+      key={index}
+      className={clsx('edition-box', {
+        selected: selectedEdition === edition,
+        'out-of-stock': isOutOfStock, // Apply out-of-stock styling
+      })}
+      onClick={() => {
+        if (!isOutOfStock) {
+          setSelectedEdition(edition);
+        }
+      }}
+    >
+      <span
+        style={{
+          textDecoration: isOutOfStock ? 'line-through' : 'none',
+        }}
+      >
+        {edition}
+      </span>
+    </div>
+  );
+})}
+
+</div>
 
                 <div className="custom-options mt-3">
                   <h5>Customization</h5>
