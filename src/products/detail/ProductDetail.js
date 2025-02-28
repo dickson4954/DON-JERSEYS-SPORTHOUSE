@@ -31,7 +31,7 @@ function ProductDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}`)
+    fetch(`http://127.0.0.1:5000/products/${id}`)
       .then(response => response.json())
       .then(data => {
         console.log("Fetched Product:", data);
@@ -59,6 +59,12 @@ function ProductDetail() {
   if (!product) return <div className="text-center my-5">Product not found</div>;
 
   const { name, image_url, price, description, category, variants, sizesWithStock } = product;
+
+  // Process editions to split them into individual items
+  const editions = (product.editions || [])  // Fallback to an empty array if editions is undefined
+    .flatMap(edition => edition.split(',')) // Split editions into individual items
+    .map(edition => edition.trim()) // Remove any extra spaces
+    .filter((edition, index, self) => self.indexOf(edition) === index); // Remove duplicates
 
   const additionalPrice =
     (customOptions.printName ? 200 : 0) +
@@ -90,7 +96,7 @@ function ProductDetail() {
 
     const hasCustomization = customOptions.printName || customOptions.printNumber || customOptions.fontType || selectedBadge;
 
-    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize);
+    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize && v.edition === selectedEdition);
 
     if (!selectedVariant || selectedVariant.stock < quantity) {
       Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize}.` });
@@ -211,54 +217,44 @@ function ProductDetail() {
 
             {category.name === 'Jerseys' && (
               <>
-                 <h5 className={clsx('required-label', { 'warning-text': !selectedEdition && showWarning })}>
-      * Select Kit Edition
-    </h5>
-    <div className="edition-selection mt-4">
-      {/* Group editions by type */}
-      {['Player Edition', 'Fan Edition'].map((editionType) => (
-        <div key={editionType} className="edition-type-container">
-          <h6>{editionType}</h6>
-          <div className="d-flex flex-wrap gap-2">
-            {product.editions
-              .filter((edition) => edition.includes(editionType)) // Filter editions by type
-              .map((edition, index) => {
-                const editionStock = sizesWithStock.filter((v) => v.edition === edition);
-                const isOutOfStock = editionStock.every((v) => v.stock <= 0);
+                <h5 className={clsx('required-label', { 'warning-text': !selectedEdition && showWarning })}>
+                  * Select Kit Edition
+                </h5>
+                <div className="edition-selection mt-4">
+                  {editions.map((edition, index) => {
+                    const editionStock = sizesWithStock.filter(v => v.edition === edition);
+                    const isOutOfStock = editionStock.every(v => v.stock <= 0);
 
-                return (
-                  <div
-                    key={index}
-                    className={clsx('edition-box', {
-                      selected: selectedEdition === edition,
-                      'out-of-stock': isOutOfStock,
-                    })}
-                    onClick={() => {
-                      if (!isOutOfStock) {
-                        setSelectedEdition(edition);
-                        setSelectedSize(''); // Reset selected size when edition changes
-                      }
-                    }}
-                    style={{
-                      opacity: isOutOfStock ? 0.5 : 1,
-                      cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                    }}
-                    disabled={isOutOfStock}
-                  >
-                    <span
-                      style={{
-                        textDecoration: isOutOfStock ? 'line-through' : 'none',
-                      }}
-                    >
-                      {edition}
-                    </span>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      ))}
-    </div>
+                    return (
+                      <div
+                        key={index}
+                        className={clsx('edition-box', {
+                          selected: selectedEdition === edition,
+                          'out-of-stock': isOutOfStock,
+                        })}
+                        onClick={() => {
+                          if (!isOutOfStock) {
+                            setSelectedEdition(edition);
+                            setSelectedSize(''); // Reset selected size when edition changes
+                          }
+                        }}
+                        style={{
+                          opacity: isOutOfStock ? 0.5 : 1,
+                          cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                        }}
+                        disabled={isOutOfStock}
+                      >
+                        <span
+                          style={{
+                            textDecoration: isOutOfStock ? 'line-through' : 'none',
+                          }}
+                        >
+                          {edition}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
 
                 <div className="custom-options mt-3">
                   <h5>Customization</h5>
