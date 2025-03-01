@@ -31,7 +31,7 @@ function ProductDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/products/${id}`)
+    fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}`)
       .then(response => response.json())
       .then(data => {
         console.log("Fetched Product:", data);
@@ -88,7 +88,7 @@ function ProductDetail() {
   const canAddToCart = selectedSize && (category.name === 'Jersey' ? selectedEdition : true);
 
   const handleAddToCart = () => {
-    if (!canAddToCart) {
+    if (!selectedSize) {
       setShowWarning(true);
       selectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
@@ -96,7 +96,7 @@ function ProductDetail() {
 
     const hasCustomization = customOptions.printName || customOptions.printNumber || customOptions.fontType || selectedBadge;
 
-    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize && v.edition === selectedEdition);
+    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize);
 
     if (!selectedVariant || selectedVariant.stock < quantity) {
       Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize}.` });
@@ -132,9 +132,7 @@ function ProductDetail() {
           setProduct(prev => ({
             ...prev,
             sizesWithStock: prev.sizesWithStock.map(v =>
-              v.size === selectedSize && v.edition === selectedEdition
-                ? { ...v, stock: v.stock - quantity }
-                : v
+              v.size === selectedSize ? { ...v, stock: v.stock - quantity } : v
             ),
           }));
         }
@@ -184,11 +182,8 @@ function ProductDetail() {
             <div className="size-selection mt-4" ref={selectionRef}>
               <h5>* Select Size</h5>
               <div className="size-box-container">
-                {sizesWithStock
-                  .filter(variant => selectedEdition ? variant.edition === selectedEdition : true)
-                  .map((variant, index) => {
-                    const isOutOfStock = variant.stock <= 0;
-
+                {sizesWithStock.map((variant, index) =>{
+                  const isOutOfStock = variant.stock <= 0; 
                     return (
                       <div
                         key={index}

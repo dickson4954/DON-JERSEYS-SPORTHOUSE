@@ -131,20 +131,20 @@ const MultiStepForm = () => {
   // Handle form submission
   const handleSubmit = async () => {
     if (!validateStep()) return;
-
+  
     let imageUrl = formData.imageUrl;
     if (imageFile) {
       const imageData = new FormData();
       imageData.append('file', imageFile); // Ensure the field name is 'file'
-
+  
       try {
         const response = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/upload', {
           method: 'POST',
           body: imageData,
         });
-
+  
         const uploadResult = await response.json();
-
+  
         if (response.ok && uploadResult.image_url) {
           imageUrl = uploadResult.image_url;
         } else {
@@ -158,7 +158,7 @@ const MultiStepForm = () => {
         return;
       }
     }
-
+  
     // Prepare payload
     const payload = {
       name: formData.name,
@@ -172,14 +172,14 @@ const MultiStepForm = () => {
       })),
       imageUrl: imageUrl,
     };
-
+  
     try {
       const productResponse = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
-
+  
       if (productResponse.ok) {
         Swal.fire({ icon: 'success', title: 'Product Added!', text: 'Product has been successfully added.' }).then(() => {
           window.location.reload();
@@ -193,7 +193,6 @@ const MultiStepForm = () => {
       Swal.fire({ icon: 'error', title: 'Submission Error', text: 'An error occurred while submitting the product. Please try again later.' });
     }
   };
-
   // Render the form based on the current step
   return (
     <>
