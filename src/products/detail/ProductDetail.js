@@ -32,28 +32,41 @@ function ProductDetail() {
 
   useEffect(() => {
     fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}`)
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
       .then(data => {
         console.log("Fetched Product:", data);
-
-        // Transform variants into sizesWithStock
-        const sizesWithStock = data.variants.map(variant => ({
-          size: variant.size,
-          stock: variant.stock,
-          edition: variant.edition,
-        }));
-
-        // Store updated product data with sizesWithStock
+  
+        if (!data.variants || !Array.isArray(data.variants)) {
+          throw new Error("Invalid product data format.");
+        }
+  
+        // Correctly split and structure editions
+        const sizesWithStock = data.variants.flatMap(variant => {
+          return variant.edition
+            .split(',')
+            .map(edition => ({
+              size: variant.size,
+              stock: variant.stock,
+              edition: edition.trim(),
+            }));
+        });
+  
         setProduct({ ...data, sizesWithStock });
         setLoading(false);
       })
       .catch(error => {
-        setError('Failed to load product details.');
+        console.error("Error fetching product:", error);
+        setError("Failed to load product details. Please try again.");
         setLoading(false);
-        console.error(error);
       });
   }, [id]);
-
+  
+  
   if (loading) return <div className="text-center my-5">Loading...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
   if (!product) return <div className="text-center my-5">Product not found</div>;
@@ -61,10 +74,12 @@ function ProductDetail() {
   const { name, image_url, price, description, category, variants, sizesWithStock } = product;
 
   // Process editions to split them into individual items
-  const editions = (product.editions || [])  // Fallback to an empty array if editions is undefined
-    .flatMap(edition => edition.split(',')) // Split editions into individual items
-    .map(edition => edition.trim()) // Remove any extra spaces
-    .filter((edition, index, self) => self.indexOf(edition) === index); // Remove duplicates
+  const editions = Array.isArray(product.editions)
+  ? product.editions.flatMap(edition => 
+      typeof edition === 'string' ? edition.split(',').map(e => e.trim()) : edition
+    )
+  : [];
+
 
   const additionalPrice =
     (customOptions.printName ? 200 : 0) +
@@ -88,7 +103,7 @@ function ProductDetail() {
   const canAddToCart = selectedSize && (category.name === 'Jersey' ? selectedEdition : true);
 
   const handleAddToCart = () => {
-    if (!selectedSize) {
+    if (!canAddToCart) {
       setShowWarning(true);
       selectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
       return;
@@ -96,7 +111,7 @@ function ProductDetail() {
 
     const hasCustomization = customOptions.printName || customOptions.printNumber || customOptions.fontType || selectedBadge;
 
-    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize);
+    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize && v.edition === selectedEdition);
 
     if (!selectedVariant || selectedVariant.stock < quantity) {
       Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize}.` });
@@ -121,27 +136,41 @@ function ProductDetail() {
       quantity
     );
 
-    fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}/update-stock`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ size: selectedSize, edition: selectedEdition, quantity }),
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          setProduct(prev => ({
-            ...prev,
-            sizesWithStock: prev.sizesWithStock.map(v =>
-              v.size === selectedSize ? { ...v, stock: v.stock - quantity } : v
-            ),
-          }));
-        }
-      })
-      .catch(error => console.error('Error updating stock:', error));
+  fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}/update-stock`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ size: selectedSize, edition: selectedEdition, quantity }),
+})
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    if (data.success) {
+      setProduct(prev => {
+        if (!prev) return prev; // Prevents errors if `prev` is null
+        return {
+          ...prev,
+          sizesWithStock: prev.sizesWithStock.map(v =>
+            v.size === selectedSize && v.edition === selectedEdition
+              ? { ...v, stock: Math.max(0, v.stock - quantity) } // Ensures stock never goes negative
+              : v
+          ),
+        };
+      });
+    } else {
+      console.warn("Stock update failed:", data);
+    }
+  })
+  .catch(error => {
+    console.error("Error updating stock:", error);
+  });
 
-    setCartCount(prevCount => prevCount + quantity);
+// Update cart count only after stock update
+setCartCount(prevCount => prevCount + quantity);
   };
-
   const badges = [
     { name: 'Europa', description: 'Europa Badge with Foundation + Ksh 100' },
     { name: 'Champions', description: 'Champions Badge with Foundation + Ksh 100' },
@@ -182,8 +211,11 @@ function ProductDetail() {
             <div className="size-selection mt-4" ref={selectionRef}>
               <h5>* Select Size</h5>
               <div className="size-box-container">
-                {sizesWithStock.map((variant, index) =>{
-                  const isOutOfStock = variant.stock <= 0; 
+                {sizesWithStock
+                  .filter(variant => selectedEdition ? variant.edition === selectedEdition : true)
+                  .map((variant, index) => {
+                    const isOutOfStock = variant.stock <= 0;
+
                     return (
                       <div
                         key={index}
