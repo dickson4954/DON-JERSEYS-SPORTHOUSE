@@ -6,7 +6,7 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     const savedCart = localStorage.getItem(`${user?.id}_cart`);
-    return savedCart ? JSON.parse(savedCart) : [];  // Return saved cart if available
+    return savedCart ? JSON.parse(savedCart) : []; // Return saved cart if available
   });
 
   const [cartCount, setCartCount] = useState(0);
@@ -14,46 +14,59 @@ export const CartProvider = ({ children }) => {
   // Wrap updateCartCount with useCallback to prevent unnecessary re-renders
   const updateCartCount = useCallback(() => {
     setCartCount(cart.reduce((total, item) => total + item.quantity, 0));
-  }, [cart]);  // Only re-run the function when cart changes
+  }, [cart]); // Only re-run the function when cart changes
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem('user'));
     if (user) {
-      localStorage.setItem(`${user.id}_cart`, JSON.stringify(cart));  // Save cart to localStorage
+      localStorage.setItem(`${user.id}_cart`, JSON.stringify(cart)); // Save cart to localStorage
       console.log('Cart saved to localStorage for user:', user.id);
     }
-    updateCartCount();  // Update cart count whenever cart changes
-  }, [cart, updateCartCount]);  // Depend on cart and updateCartCount
+    updateCartCount(); // Update cart count whenever cart changes
+  }, [cart, updateCartCount]); // Depend on cart and updateCartCount
 
-  const addToCart = (product, quantity = 1, size = 'Default Size') => {
+  const addToCart = (product, quantity = 1, size = 'Default Size', edition = 'Default Edition') => {
     setCart((prevCart) => {
-      const existingProduct = prevCart.find(item => item.id === product.id);
+      // Check if the product with the same ID, size, and edition already exists in the cart
+      const existingProduct = prevCart.find(
+        (item) =>
+          item.id === product.id &&
+          item.size === size &&
+          item.edition === edition
+      );
+
       if (existingProduct) {
-        return prevCart.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + quantity, size }
+        // If the product exists, update its quantity
+        return prevCart.map((item) =>
+          item.id === product.id && item.size === size && item.edition === edition
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
+      } else {
+        // If the product doesn't exist, add it to the cart
+        return [...prevCart, { ...product, quantity, size, edition }];
       }
-      return [...prevCart, { ...product, quantity, size }];
     });
   };
 
   const removeFromCart = (productId) => {
-    setCart((prevCart) => prevCart.filter(item => item.id !== productId));
+    setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
   const updateQuantity = (id, newQuantity) => {
-    setCart(cart => 
-      cart.map(item => 
-        item.id === id ? { ...item, quantity: Math.max(0, newQuantity) } : item
-      ).filter(item => item.quantity > 0) // Removes items with 0 quantity
+    setCart((cart) =>
+      cart
+        .map((item) =>
+          item.id === id ? { ...item, quantity: Math.max(0, newQuantity) } : item
+        )
+        .filter((item) => item.quantity > 0) // Removes items with 0 quantity
     );
   };
-  
 
   return (
-    <CartContext.Provider value={{ cart, cartCount, setCart, addToCart, removeFromCart, updateQuantity }}>
+    <CartContext.Provider
+      value={{ cart, cartCount, setCart, addToCart, removeFromCart, updateQuantity }}
+    >
       {children}
     </CartContext.Provider>
   );
