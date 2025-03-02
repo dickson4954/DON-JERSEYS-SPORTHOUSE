@@ -108,7 +108,7 @@ function ProductDetail() {
     const hasCustomization = customOptions.printName || customOptions.printNumber || customOptions.fontType || selectedBadge;
   
     // Find the selected variant based on the selected size and edition
-    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize && v.edition === selectedEdition);
+    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize);
   
     if (!selectedVariant || selectedVariant.stock < quantity) {
       Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize}.` });
@@ -133,41 +133,7 @@ function ProductDetail() {
       },
       quantity
     );
-  
-    // Update stock in the backend
-    fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}/update-stock`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ size: selectedSize, edition: selectedEdition, quantity }),
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          setProduct(prev => {
-            if (!prev) return prev; // Prevents errors if `prev` is null
-            return {
-              ...prev,
-              sizesWithStock: prev.sizesWithStock.map(v =>
-                v.size === selectedSize && v.edition === selectedEdition
-                  ? { ...v, stock: Math.max(0, v.stock - quantity) } // Ensures stock never goes negative
-                  : v
-              ),
-            };
-          });
-        } else {
-          console.warn("Stock update failed:", data);
-        }
-      })
-      .catch(error => {
-        console.error("Error updating stock:", error);
-      });
-  
-    // Update cart count only after stock update
+    // Update cart count 
     setCartCount(prevCount => prevCount + quantity);
   };
 

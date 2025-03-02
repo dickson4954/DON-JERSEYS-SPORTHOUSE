@@ -46,7 +46,7 @@ export default function Ondelivery() {
   
     const orderData = {
       cart: cart.map((item) => ({
-        product_id: item.id, // Include product ID
+        product_id: item.id, 
         name: item.name,
         quantity: item.quantity,
         size: item.size || "N/A",
@@ -90,6 +90,22 @@ export default function Ondelivery() {
       if (data.success) {
         console.log("Order placed successfully:", data);
         setOrderStatus("success");
+
+        await Promise.all(cart.map(async (item) => {
+          const updateResponse = await fetch (`http://127.0.0.1:5000/products/${item.id}/update-stock`, {
+            method: "post",
+            headers: { "Content-Type": "application/json"},
+            body: JSON.stringify({ size: item.size, quantity: item.quantity })
+
+          })
+          if (!updateResponse.ok){
+            throw new Error (`HTTP error! Status: ${updateResponse.status}`) 
+          }
+          const updateData = await updateResponse.json()
+          if (!updateData.success){
+            console.warn("Stock update failed", updateData)
+          }
+        }))
   
         Swal.fire({
           icon: 'success',
