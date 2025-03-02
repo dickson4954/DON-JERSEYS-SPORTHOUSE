@@ -25,29 +25,30 @@ export const CartProvider = ({ children }) => {
     updateCartCount(); // Update cart count whenever cart changes
   }, [cart, updateCartCount]); // Depend on cart and updateCartCount
 
-  const addToCart = (product, quantity = 1, size = 'Default Size', edition = 'Default Edition') => {
+  const addToCart = (product, quantity = 1) => { // 🚀 Removed extra parameters
     setCart((prevCart) => {
-      // Check if the product with the same ID, size, and edition already exists in the cart
       const existingProduct = prevCart.find(
         (item) =>
           item.id === product.id &&
-          item.size === size &&
-          item.edition === edition
+          item.size === product.size && // ✅ Compare using product.size
+          item.edition === product.edition // ✅ Compare using product.edition
       );
-
+  
       if (existingProduct) {
-        // If the product exists, update its quantity
         return prevCart.map((item) =>
-          item.id === product.id && item.size === size && item.edition === edition
+          item.id === product.id && item.size === product.size && item.edition === product.edition
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       } else {
-        // If the product doesn't exist, add it to the cart
-        return [...prevCart, { ...product, quantity, size, edition }];
+        return [...prevCart, { ...product, quantity }];
       }
     });
   };
+  useEffect(() => {
+    console.log("Updated Cart:", cart);
+  }, [cart]);
+    
 
   const removeFromCart = (productId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));

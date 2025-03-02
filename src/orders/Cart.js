@@ -127,6 +127,7 @@ function Cart() {
           {cart.length > 0 ? (
             <div className="cart-items">
               {cart.map((item, index) => {
+                 console.log('Cart Item:', item);
                 const customizationCharge = calculateCustomizationCharge(item);
                 const totalPerItem = (item.price + customizationCharge) * item.quantity;
                 const hasCustomization = item.customName || item.customNumber || item.fontType || item.badge;
@@ -152,6 +153,8 @@ function Cart() {
                       <div className="size-dropdown">
                         <div className="size-info">
                           <p>{item.size || 'N/A'}</p>
+                        
+
                         </div>
                       </div>
                     </div>

@@ -39,30 +39,44 @@ function ProductDetail() {
         return response.json();
       })
       .then(data => {
-        console.log("Fetched Product:", data);
-
+        console.log("Fetched Product:", data);  // Log full fetched product
+        console.log("Raw Size Stock:", data.size_stock);
+  
         if (!data.variants || !Array.isArray(data.variants)) {
           throw new Error("Invalid product data format.");
         }
+  
+       
+        const sizesWithStock = [];
 
-     // Process size_stock data
-     const sizesWithStock = Object.entries(data.size_stock).flatMap(([size, editions]) => {
-      return Object.entries(editions).map(([edition, stock]) => ({
-        size,
-        edition,
-        stock,
-      }));
-    });
-
-    setProduct({ ...data, sizesWithStock });
-    setLoading(false);
-  })
-  .catch(error => {
-    console.error("Error fetching product:", error);
-    setError("Failed to load product details. Please try again.");
-    setLoading(false);
+if (data.size_stock && typeof data.size_stock === 'object') {
+  Object.entries(data.size_stock).forEach(([size, editions]) => {
+    if (typeof editions === 'object') {
+      Object.entries(editions).forEach(([edition, stock]) => {
+        sizesWithStock.push({
+          size,
+          edition,
+          stock,
+        });
+      });
+    }
   });
-}, [id]);
+}
+
+  
+        console.log("Size Stock:", data.size_stock); // Check the raw size_stock data
+        console.log("Formatted Sizes With Stock:", sizesWithStock); // Verify the processed stock data
+  
+        setProduct({ ...data, sizesWithStock });
+        setLoading(false);
+      })
+      .catch(error => {
+        console.error("Error fetching product:", error);
+        setError("Failed to load product details. Please try again.");
+        setLoading(false);
+      });
+  }, [id]);
+  
 
   if (loading) return <div className="text-center my-5">Loading...</div>;
   if (error) return <div className="alert alert-danger">{error}</div>;
@@ -97,7 +111,6 @@ function ProductDetail() {
   };
 
   const canAddToCart = selectedSize && (category.name === 'Jersey' ? selectedEdition : true);
-
   const handleAddToCart = () => {
     if (!canAddToCart) {
       setShowWarning(true);
@@ -105,17 +118,17 @@ function ProductDetail() {
       return;
     }
   
-    const hasCustomization = customOptions.printName || customOptions.printNumber || customOptions.fontType || selectedBadge;
-  
-    // Find the selected variant based on the selected size and edition
-    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize);
-  
+    console.log("Selected Size:", selectedSize);
+    console.log("Selected Edition:", selectedEdition);
+    
+    const selectedVariant = sizesWithStock.find(v => v.size === selectedSize && v.edition === selectedEdition);
+    
     if (!selectedVariant || selectedVariant.stock < quantity) {
       Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize}.` });
       return;
     }
-  
-    // Add the product to the cart with the selected size
+    console.log(selectedVariant);
+    
     addToCart(
       {
         id: product.id,
@@ -128,14 +141,16 @@ function ProductDetail() {
         customNumber: customOptions.numberText,
         fontType: customOptions.fontType,
         additionalPrice,
-        hasCustomization,
-        size: selectedSize, // Pass the selected size here
+        hasCustomization: customOptions.printName || customOptions.printNumber || selectedBadge,
+        size: selectedSize, // ✅ This ensures the size is correctly stored
       },
       quantity
     );
-    // Update cart count 
+    
+  
     setCartCount(prevCount => prevCount + quantity);
   };
+  
 
   const badges = [
     { name: 'Europa', description: 'Europa Badge with Foundation + Ksh 100' },
@@ -178,7 +193,9 @@ function ProductDetail() {
                 <h5>* Select Size</h5>
                 <div className="size-box-container">
                   {[...new Set(sizesWithStock.map(variant => variant.size))].map((size, index) => {
-                    const isOutOfStock = sizesWithStock.filter(v => v.size === size).every(v => v.stock <= 0);
+                    
+                    const isOutOfStock = sizesWithStock.some(v => v.size === size && v.stock > 0) ? false : true;
+
 
                     return (
                       <div
@@ -190,6 +207,7 @@ function ProductDetail() {
                         onClick={() => {
                           if (!isOutOfStock) {
                             setSelectedSize(size);
+                            console.log("Selected Size Updated:", size);
                           }
                         }}
                         style={{
@@ -213,7 +231,9 @@ function ProductDetail() {
                 </h5>
                 <div className="edition-selection mt-4">
                   {[...new Set(sizesWithStock.map(variant => variant.edition))].map((edition, index) => {
-                    const isOutOfStock = sizesWithStock.filter(v => v.edition === edition).every(v => v.stock <= 0);
+                 
+                    const isOutOfStock = sizesWithStock.some(v => v.edition === edition && v.stock > 0) ? false : true;
+
 
                     return (
                       <div
