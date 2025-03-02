@@ -46,7 +46,7 @@ export default function Ondelivery() {
   
     const orderData = {
       cart: cart.map((item) => ({
-        product_id: item.id, 
+        product_id: item.id,
         name: item.name,
         quantity: item.quantity,
         size: item.size || "N/A",
@@ -66,8 +66,6 @@ export default function Ondelivery() {
       total_price: totalPrice,
     };
   
-    console.log("Order Data to be Posted:", orderData);
-  
     try {
       const response = await fetch("http://127.0.0.1:5000/orders", {
         method: "POST",
@@ -78,34 +76,38 @@ export default function Ondelivery() {
       });
   
       const rawResponse = await response.text();
-      console.log("Raw Response:", rawResponse);
-  
       const data = JSON.parse(rawResponse);
-      console.log('Response Data:', data);
   
       if (!response.ok) {
         throw new Error(`Server Error: ${response.status} ${response.statusText}`);
       }
   
       if (data.success) {
-        console.log("Order placed successfully:", data);
         setOrderStatus("success");
-
+  
         await Promise.all(cart.map(async (item) => {
-          const updateResponse = await fetch (`http://127.0.0.1:5000/products/${item.id}/update-stock`, {
-            method: "post",
-            headers: { "Content-Type": "application/json"},
-            body: JSON.stringify({ size: item.size, quantity: item.quantity })
-
-          })
-          if (!updateResponse.ok){
-            throw new Error (`HTTP error! Status: ${updateResponse.status}`) 
+          const payload = {
+            size: item.size || "N/A",
+            edition: item.edition || "N/A",
+            quantity: item.quantity,
+          };
+          console.log("Updating stock for item:", item.id, "with payload:", payload);
+  
+          const updateResponse = await fetch(`http://127.0.0.1:5000/products/${item.id}/update-stock`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+  
+          if (!updateResponse.ok) {
+            throw new Error(`HTTP error! Status: ${updateResponse.status}`);
           }
-          const updateData = await updateResponse.json()
-          if (!updateData.success){
-            console.warn("Stock update failed", updateData)
+  
+          const updateData = await updateResponse.json();
+          if (!updateData.success) {
+            console.warn("Stock update failed", updateData);
           }
-        }))
+        }));
   
         Swal.fire({
           icon: 'success',

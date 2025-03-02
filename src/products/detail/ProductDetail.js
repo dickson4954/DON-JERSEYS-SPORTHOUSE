@@ -110,6 +110,8 @@ if (data.size_stock && typeof data.size_stock === 'object') {
     setSelectedBadge(prevBadge => (prevBadge === badge ? '' : badge));
   };
 
+  
+
   const canAddToCart = selectedSize && (category.name === 'Jersey' ? selectedEdition : true);
   const handleAddToCart = () => {
     if (!canAddToCart) {
@@ -124,7 +126,7 @@ if (data.size_stock && typeof data.size_stock === 'object') {
     const selectedVariant = sizesWithStock.find(v => v.size === selectedSize && v.edition === selectedEdition);
     
     if (!selectedVariant || selectedVariant.stock < quantity) {
-      Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize}.` });
+      Swal.fire({ icon: 'error', title: 'Out of Stock', text: `Not enough stock for size ${selectedSize} and edition ${selectedEdition}` });
       return;
     }
     console.log(selectedVariant);
@@ -190,39 +192,37 @@ if (data.size_stock && typeof data.size_stock === 'object') {
             <h1 className="product-name">{name}</h1>
             <p>{description}</p>
             <div className="size-selection mt-4" ref={selectionRef}>
-                <h5>* Select Size</h5>
-                <div className="size-box-container">
-                  {[...new Set(sizesWithStock.map(variant => variant.size))].map((size, index) => {
-                    
-                    const isOutOfStock = sizesWithStock.some(v => v.size === size && v.stock > 0) ? false : true;
+              <h5>* Select Size</h5>
+              <div className="size-box-container">
+                {[...new Set(sizesWithStock.map(variant => variant.size))].map((size, index) => {
+                  const isOutOfStock = sizesWithStock.some(v => v.size === size && v.stock > 0) ? false : true;
 
-
-                    return (
-                      <div
-                        key={index}
-                        className={clsx('size-box', {
-                          selected: selectedSize === size,
-                          'out-of-stock': isOutOfStock,
-                        })}
-                        onClick={() => {
-                          if (!isOutOfStock) {
-                            setSelectedSize(size);
-                            console.log("Selected Size Updated:", size);
-                          }
-                        }}
-                        style={{
-                          opacity: isOutOfStock ? 0.5 : 1,
-                          cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                        }}
-                        disabled={isOutOfStock}
-                      >
-                        {size}
-                        {isOutOfStock && <span className="sold-out-text">Sold Out</span>}
-                      </div>
-                    );
-                  })}
-                </div>
+                  return (
+                    <div
+                      key={index}
+                      className={clsx('size-box', {
+                        selected: selectedSize === size,
+                        'out-of-stock': isOutOfStock,
+                      })}
+                      onClick={() => {
+                        if (!isOutOfStock) {
+                          setSelectedSize(size);
+                          console.log("Selected Size Updated:", size);
+                        }
+                      }}
+                      style={{
+                        opacity: isOutOfStock ? 0.5 : 1,
+                        cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+                      }}
+                      disabled={isOutOfStock}
+                    >
+                      {size}
+                      {isOutOfStock && <span className="sold-out-text">Sold Out</span>}
+                    </div>
+                  );
+                })}
               </div>
+            </div>
 
             {category.name === 'Jerseys' && (
               <>
@@ -231,9 +231,7 @@ if (data.size_stock && typeof data.size_stock === 'object') {
                 </h5>
                 <div className="edition-selection mt-4">
                   {[...new Set(sizesWithStock.map(variant => variant.edition))].map((edition, index) => {
-                 
                     const isOutOfStock = sizesWithStock.some(v => v.edition === edition && v.stock > 0) ? false : true;
-
 
                     return (
                       <div
