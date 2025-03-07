@@ -194,34 +194,35 @@ if (data.size_stock && typeof data.size_stock === 'object') {
             <div className="size-selection mt-4" ref={selectionRef}>
               <h5>* Select Size</h5>
               <div className="size-box-container">
-                {[...new Set(sizesWithStock.map(variant => variant.size))].map((size, index) => {
-                  const isOutOfStock = sizesWithStock.some(v => v.size === size && v.stock > 0) ? false : true;
+  {[...new Set(sizesWithStock.map(variant => variant.size))].map((size, index) => {
+    const isOutOfStock = !sizesWithStock.some(v => v.size === size && v.stock > 0);
 
-                  return (
-                    <div
-                      key={index}
-                      className={clsx('size-box', {
-                        selected: selectedSize === size,
-                        'out-of-stock': isOutOfStock,
-                      })}
-                      onClick={() => {
-                        if (!isOutOfStock) {
-                          setSelectedSize(size);
-                          console.log("Selected Size Updated:", size);
-                        }
-                      }}
-                      style={{
-                        opacity: isOutOfStock ? 0.5 : 1,
-                        cursor: isOutOfStock ? 'not-allowed' : 'pointer',
-                      }}
-                      disabled={isOutOfStock}
-                    >
-                      {size}
-                      {isOutOfStock && <span className="sold-out-text">Sold Out</span>}
-                    </div>
-                  );
-                })}
-              </div>
+    return (
+      <div
+        key={index}
+        className={clsx('size-box', {
+          selected: selectedSize === size,
+          'out-of-stock': isOutOfStock,
+        })}
+        onClick={() => {
+          if (!isOutOfStock) {
+            setSelectedSize(size);
+            console.log("Selected Size Updated:", size);
+          }
+        }}
+        style={{
+          textDecoration: isOutOfStock ? 'line-through' : 'none', // ✅ Adds strikethrough for out-of-stock items
+          opacity: isOutOfStock ? 0.5 : 1, 
+          cursor: isOutOfStock ? 'not-allowed' : 'pointer',
+        }}
+        disabled={isOutOfStock}
+      >
+        {size}
+      </div>
+    );
+  })}
+</div>
+
             </div>
 
             {category.name === 'Jerseys' && (
