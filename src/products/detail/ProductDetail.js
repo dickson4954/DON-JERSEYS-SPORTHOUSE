@@ -31,7 +31,7 @@ function ProductDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:5000/products/${id}`)
+    fetch(`https://donjerseyssporthouseserver-71ee.onrender.com/products/${id}`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
