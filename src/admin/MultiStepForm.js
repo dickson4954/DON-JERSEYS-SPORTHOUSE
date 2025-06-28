@@ -22,7 +22,7 @@ const MultiStepForm = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/categories');
+        const response = await fetch('https://donjerseysporthouseco.co.ke/backend/api/categories');
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
         const data = await response.json();
         console.log('Fetched Categories:', data); // Debugging the response
@@ -138,7 +138,7 @@ const MultiStepForm = () => {
       imageData.append('file', imageFile); // Ensure the field name is 'file'
   
       try {
-        const response = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/upload', {
+        const response = await fetch('https://donjerseysporthouseco.co.ke/backend/api/upload', {
           method: 'POST',
           body: imageData,
         });
@@ -174,7 +174,7 @@ const MultiStepForm = () => {
     };
   
     try {
-      const productResponse = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/products', {
+      const productResponse = await fetch('https://donjerseysporthouseco.co.ke/backend/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

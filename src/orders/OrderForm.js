@@ -41,7 +41,7 @@ const OrderForm = () => {
     
 
     try {
-      const response = await fetch('https://donjerseyssporthouseserver-71ee.onrender.com/orders', {
+      const response = await fetch('https://donjerseysporthouseco.co.ke/backend/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

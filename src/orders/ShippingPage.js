@@ -92,7 +92,7 @@ export default function ShippingPage() {
 
     try {
       // Step 1: Initiate payment
-      const paymentResponse = await axios.post("https://donjerseyssporthouseserver-71ee.onrender.com/pay", {
+      const paymentResponse = await axios.post("https://donjerseysporthouseco.co.ke/backend/api/pay", {
         phone_number: paymentPhoneNumber,
         amount: totalPrice,
       });
@@ -175,7 +175,7 @@ export default function ShippingPage() {
     console.log("Order Data to be Posted:", orderData);
   
     try {
-      const response = await fetch("https://donjerseyssporthouseserver-71ee.onrender.com/orders", {
+      const response = await fetch("https://donjerseysporthouseco.co.ke/backend/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
