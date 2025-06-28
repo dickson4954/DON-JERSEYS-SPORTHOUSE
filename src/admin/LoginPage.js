@@ -42,8 +42,8 @@ const LoginPage = () => {
 
     const url = isLogin ? 'https://donjerseysporthouseco.co.ke/backend/auth/login' : 'https://donjerseysporthouseco.co.ke/backend/auth/signup';
     const requestData = isLogin
-      ? { username: formData.username, password: formData.password }
-      : { username: formData.username, email: formData.email, password: formData.password };
+  ? { identifier: formData.username, password: formData.password } // Use identifier here
+  : { username: formData.username, email: formData.email, password: formData.password };
 
     try {
       const response = await fetch(url, {
