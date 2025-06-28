@@ -40,7 +40,7 @@ const LoginPage = () => {
       return;
     }
 
-    const url = isLogin ? 'https://donjerseysporthouseco.co.ke/backend/auth/login' : 'https://donjerseysporthouseco.co.ke/backend/auth/signup';
+    const url = isLogin ? 'https://donjerseysporthouseco.co.ke/backend/api/auth/login' : 'https://donjerseysporthouseco.co.ke/backend/api/auth/signup';
     const requestData = isLogin
   ? { identifier: formData.username, password: formData.password } // Use identifier here
   : { username: formData.username, email: formData.email, password: formData.password };
