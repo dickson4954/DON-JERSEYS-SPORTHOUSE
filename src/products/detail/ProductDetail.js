@@ -31,7 +31,7 @@ function ProductDetail() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`https://donjerseysporthouseco.co.ke/backend/api/products/${id}`)
+    fetch(`https://donjerseysporthouseco.co.ke/backend/api/products/products/${id}`)
       .then(response => {
         if (!response.ok) {
           throw new Error(`HTTP error! Status: ${response.status}`);
