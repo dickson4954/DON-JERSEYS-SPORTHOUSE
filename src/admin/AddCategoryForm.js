@@ -4,24 +4,20 @@ import axios from 'axios';
 const AddCategoryForm = ({ onCategoryAdded }) => {
   const [categoryName, setCategoryName] = useState('');
   const [message, setMessage] = useState('');
-  // Optional: if you want to upload an image file
-  const [imageFile, setImageFile] = useState(null);
+  const [image, setImage] = useState(null);
 
   const handleCategorySubmit = (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem('token'); // your stored JWT token
+    const token = localStorage.getItem('token');
     if (!token) {
       setMessage('You must be logged in to add a category.');
       return;
     }
 
-    // Create FormData and append fields
     const formData = new FormData();
     formData.append('name', categoryName);
-    if (imageFile) {
-      formData.append('image', imageFile);
-    }
+    if (image) formData.append('image', image);
 
     axios.post(
       'https://donjerseysporthouseco.co.ke/backend/api/products/categories',
@@ -29,14 +25,14 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data', // important!
+          'Content-Type': 'multipart/form-data',
         },
       }
     )
     .then((response) => {
       setMessage(response.data.message);
       setCategoryName('');
-      setImageFile(null);
+      setImage(null);
       onCategoryAdded();
     })
     .catch((error) => {
@@ -56,11 +52,9 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
           onChange={(e) => setCategoryName(e.target.value)}
           required
         />
-        {/* Optional image upload input */}
-        <input 
-          type="file" 
-          accept="image/*" 
-          onChange={(e) => setImageFile(e.target.files[0])} 
+        <input
+          type="file"
+          onChange={(e) => setImage(e.target.files[0])}
         />
         <button type="submit">Add Category</button>
       </form>
