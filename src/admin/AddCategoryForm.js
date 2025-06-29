@@ -4,7 +4,6 @@ import axios from 'axios';
 const AddCategoryForm = ({ onCategoryAdded }) => {
   const [categoryName, setCategoryName] = useState('');
   const [message, setMessage] = useState('');
-  const [image, setImage] = useState(null);
 
   const handleCategorySubmit = (e) => {
     e.preventDefault();
@@ -15,25 +14,20 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', categoryName);
-    if (image) formData.append('image', image);
-
     axios.post(
       'https://donjerseysporthouseco.co.ke/backend/api/products/categories',
-      formData,
+      { name: categoryName },
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
       }
     )
     .then((response) => {
       setMessage(response.data.message);
       setCategoryName('');
-      setImage(null);
-      onCategoryAdded();
+      if (onCategoryAdded) onCategoryAdded();
     })
     .catch((error) => {
       const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message;
@@ -51,10 +45,6 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
           value={categoryName}
           onChange={(e) => setCategoryName(e.target.value)}
           required
-        />
-        <input
-          type="file"
-          onChange={(e) => setImage(e.target.files[0])}
         />
         <button type="submit">Add Category</button>
       </form>
