@@ -7,15 +7,34 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
 
   const handleCategorySubmit = (e) => {
     e.preventDefault();
-    axios.post('https://donjerseysporthouseco.co.ke/backend/api/products/categories', { name: categoryName })
-      .then((response) => {
-        setMessage(response.data.message);
-        setCategoryName('');
-        onCategoryAdded();    
-      })
-      .catch((error) => {
-        setMessage('Error adding category: ' + error.response.data.error);
-      });
+
+    const token = localStorage.getItem('token'); // Adjust if you store token elsewhere
+
+    if (!token) {
+      setMessage('You must be logged in to add a category.');
+      return;
+    }
+
+    axios.post(
+      'https://donjerseysporthouseco.co.ke/backend/api/products/categories',
+      { name: categoryName },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    )
+    .then((response) => {
+      setMessage(response.data.message);
+      setCategoryName('');
+      onCategoryAdded();
+    })
+    .catch((error) => {
+      // Use more descriptive error message if available
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message;
+      setMessage('Error adding category: ' + errorMsg);
+    });
   };
 
   return (
@@ -27,6 +46,7 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
           placeholder="Category Name"
           value={categoryName}
           onChange={(e) => setCategoryName(e.target.value)}
+          required
         />
         <button type="submit">Add Category</button>
       </form>
