@@ -7,7 +7,7 @@ const AddCategoryForm = ({ onCategoryAdded }) => {
 
   const handleCategorySubmit = (e) => {
     e.preventDefault();
-    axios.post('https://donjerseysporthouseco.co.ke/backend/api/categories', { name: categoryName })
+    axios.post('https://donjerseysporthouseco.co.ke/backend/api/products/categories', { name: categoryName })
       .then((response) => {
         setMessage(response.data.message);
         setCategoryName('');

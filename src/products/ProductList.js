@@ -40,7 +40,7 @@ function ProductList() {
 
   // Fetch categories
   useEffect(() => {
-    fetch("https://donjerseysporthouseco.co.ke/backend/api/categories")
+    fetch("https://donjerseysporthouseco.co.ke/backend/api/products/categories")
       .then((response) => response.json())
       .then((data) => {
         setCategories([
@@ -53,7 +53,7 @@ function ProductList() {
 
   // Fetch products
   useEffect(() => {
-    fetch("https://donjerseysporthouseco.co.ke/backend/api/products")
+    fetch("https://donjerseysporthouseco.co.ke/backend/api/products/products")
       .then((response) => response.json())
       .then((data) => {
         console.log("Fetched Products:", data);  // Debugging step

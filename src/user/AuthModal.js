@@ -18,14 +18,14 @@ function AuthModal({ isOpen, onClose }) {
 
     try {
       if (isSignup) {
-        const response = await axios.post('https://donjerseysporthouseco.co.ke/backend/api/login', { username, email, password });
+        const response = await axios.post('https://donjerseysporthouseco.co.ke/backend/api/auth/login', { username, email, password });
         if (response.data.message === "User registered successfully") {
           onClose();
         } else {
           setError(response.data.message);
         }
       } else {
-        const response = await axios.post('https://donjerseysporthouseco.co.ke/backend/api/login', { identifier, password });
+        const response = await axios.post('https://donjerseysporthouseco.co.ke/backend/api/auth/signup', { identifier, password });
         if (response.data.access_token) {
           // Store JWT, user details, and admin status
           localStorage.setItem('token', response.data.access_token);

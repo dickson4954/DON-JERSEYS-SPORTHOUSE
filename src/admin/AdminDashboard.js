@@ -39,7 +39,7 @@ const AdminDashboard = () => {
   // Fetch categories
   const fetchCategories = async () => {
     try {
-      const response = await axios.get('https://donjerseysporthouseco.co.ke/backend/api/categories');
+      const response = await axios.get('https://donjerseysporthouseco.co.ke/backend/api/products/categories');
       setCategoryCounts(response.data || []); // Fallback to an empty array
     } catch (error) {
       console.error('Error fetching category counts:', error);
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
     setActiveCategory(categoryId);
     setLoading(true);
     axios
-      .get(`https://donjerseysporthouseco.co.ke/backend/api/categories/${categoryId}`)
+      .get(`https://donjerseysporthouseco.co.ke/backend/api/products/categories/${categoryId}`)
       .then((response) => {
         setProducts(response.data || []); // Fallback to an empty array
         setError('');
@@ -75,7 +75,7 @@ const AdminDashboard = () => {
   const fetchOrders = async () => {
     try {
       setLoadingOrders(true);
-      const response = await axios.get('https://donjerseysporthouseco.co.ke/backend/api/orders');
+      const response = await axios.get('https://donjerseysporthouseco.co.ke/backend/api/products/orders');
       setOrders(response.data || []); // Fallback to an empty array
       setErrorOrders('');
     } catch (error) {
@@ -93,7 +93,7 @@ const AdminDashboard = () => {
   const handleDeleteProduct = async (productId) => {
     if (window.confirm("Are you sure you want to delete this product?")) {
       try {
-        await axios.delete(`https://donjerseysporthouseco.co.ke/backend/api/products/${productId}`);
+        await axios.delete(`https://donjerseysporthouseco.co.ke/backend/api/products/products/${productId}`);
         alert("Product deleted successfully!");
         setProducts(products.filter((product) => product.id !== productId)); // Update UI
       } catch (error) {
@@ -107,7 +107,7 @@ const AdminDashboard = () => {
       const confirmation = window.confirm("Are you sure you want to delete this order?");
       if (!confirmation) return;
   
-      const response = await axios.delete(`https://donjerseysporthouseco.co.ke/backend/api/orders/${orderId}`);
+      const response = await axios.delete(`https://donjerseysporthouseco.co.ke/backend/api/products/orders/${orderId}`);
       if (response.status === 200) {
         setOrders(orders.filter(order => order.id !== orderId)); // Update state to reflect deletion
         setErrorOrders('');
@@ -123,7 +123,7 @@ const AdminDashboard = () => {
   const handleViewOrder = async (orderId) => {
     try {
       setLoadingOrders(true);
-      const orderResponse = await axios.get(`https://donjerseysporthouseco.co.ke/backend/api/orders/${orderId}`);
+      const orderResponse = await axios.get(`https://donjerseysporthouseco.co.ke/backend/api/products/orders/${orderId}`);
       const orderData = orderResponse.data;
   
       console.log("Fetched order data:", orderData);  // Log the response data

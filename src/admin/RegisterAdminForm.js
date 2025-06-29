@@ -15,7 +15,7 @@ const RegisterAdminForm = () => {
     setSuccess('');
 
     try {
-      const response = await axios.post('https://donjerseysporthouseco.co.ke/backend/api/admin/register', {
+      const response = await axios.post('https://donjerseysporthouseco.co.ke/backend/api/admin/admin/register', {
         username,
         email,
         password,
