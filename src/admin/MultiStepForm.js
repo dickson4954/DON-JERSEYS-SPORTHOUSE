@@ -128,36 +128,58 @@ const MultiStepForm = () => {
   // Move to the previous step
   const prevStep = () => setStep((prevStep) => prevStep - 1);
 
-  // Handle form submission
   const handleSubmit = async () => {
-    if (!validateStep()) return;
-  
-    let imageUrl = formData.imageUrl;
-    if (imageFile) {
-      const imageData = new FormData();
-      imageData.append('file', imageFile); // Ensure the field name is 'file'
-  
-      try {
-        const response = await fetch('https://donjerseysporthouseco.co.ke/backend/api/products/upload', {
-          method: 'POST',
-          body: imageData,
-        });
-  
+  if (!validateStep()) return;
+
+  let imageUrl = formData.imageUrl;
+
+  if (imageFile) {
+    const imageData = new FormData();
+    imageData.append('file', imageFile); // Ensure the field name is 'file'
+
+    try {
+      const response = await fetch('https://donjerseysporthouseco.co.ke/backend/api/products/upload', {
+        method: 'POST',
+        body: imageData,
+      });
+
+      const contentType = response.headers.get("content-type");
+
+      if (contentType && contentType.includes("application/json")) {
         const uploadResult = await response.json();
-  
+
         if (response.ok && uploadResult.image_url) {
           imageUrl = uploadResult.image_url;
         } else {
           console.error('Upload result:', uploadResult); // Log the result for debugging
-          Swal.fire({ icon: 'error', title: 'Image Upload Failed', text: 'Please try uploading the image again.' });
+          Swal.fire({
+            icon: 'error',
+            title: 'Image Upload Failed',
+            text: uploadResult?.error || 'Please try uploading the image again.',
+          });
           return;
         }
-      } catch (error) {
-        console.error('Image upload error:', error);
-        Swal.fire({ icon: 'error', title: 'Image Upload Error', text: 'An error occurred while uploading the image.' });
+      } else {
+        const errorText = await response.text(); // This captures the HTML if not JSON
+        console.error('Non-JSON response during upload:', errorText);
+        Swal.fire({
+          icon: 'error',
+          title: 'Server Error',
+          text: 'Unexpected server response during image upload.',
+        });
         return;
       }
+
+    } catch (error) {
+      console.error('Image upload error:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Image Upload Error',
+        text: 'An error occurred while uploading the image.',
+      });
+      return;
     }
+  }
   
     // Prepare payload
     const payload = {
