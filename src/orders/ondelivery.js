@@ -98,7 +98,7 @@ export default function Ondelivery() {
   setOrderStatus("success");
   Swal.fire("Success", "Order placed successfully!", "success");
   setCart([]); // Clear the cart
-  navigate("/success"); // Optional: redirect to a confirmation page
+  // navigate("/success"); // Optional: redirect to a confirmation page
 }
 else {
     throw new Error(data.message || "Failed to place order.");
