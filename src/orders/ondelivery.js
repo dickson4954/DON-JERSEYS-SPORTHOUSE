@@ -40,6 +40,11 @@ export default function Ondelivery() {
       alert("Please fill in all required fields before placing the order.");
       return;
     }
+    if (!cart || !Array.isArray(cart) || cart.length === 0) {
+  Swal.fire("Cart Empty", "Please add items to your cart.", "warning");
+  return;
+}
+
   
     setLoading(true);
     setOrderStatus(null);
@@ -89,9 +94,13 @@ export default function Ondelivery() {
     throw new Error(`Server Error: ${response.status} ${response.statusText}`);
   }
 
-  if (data.success) {
-    // ... success logic ...
-  } else {
+ if (data.success) {
+  setOrderStatus("success");
+  Swal.fire("Success", "Order placed successfully!", "success");
+  setCart([]); // Clear the cart
+  navigate("/success"); // Optional: redirect to a confirmation page
+}
+else {
     throw new Error(data.message || "Failed to place order.");
   }
 } catch (error) {
@@ -102,11 +111,13 @@ export default function Ondelivery() {
     text: `Error: ${error.message}`,
     confirmButtonText: 'OK',
   });
+  
 }
  finally {
       setLoading(false);
     }
   };
+  
   // Calculate shipping fee based on region
   const calculateShippingFee = (region) => {
     let fee = 0;
@@ -179,13 +190,13 @@ export default function Ondelivery() {
 
   // Initialize form data and calculate total price on component mount
   useEffect(() => {
-    setFormData((prevState) => ({
-      ...prevState,
-      location: formDataFromCart?.location || "",
-      phone: formDataFromCart?.phonenumber || "",
-      name: formDataFromCart?.name || "",
-      region: formDataFromCart?.region || "",
-    }));
+  setFormData((prevState) => ({
+    ...prevState,
+    physicalAddress: formDataFromCart?.location || "",
+    phoneNumber: formDataFromCart?.phone || "",
+    name: formDataFromCart?.name || "",
+    region: formDataFromCart?.region || "",
+  }));
 
     calculateTotalPrice(shippingFee);
   }, [formDataFromCart, shippingFee]);
