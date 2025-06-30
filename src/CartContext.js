@@ -3,40 +3,55 @@ import React, { createContext, useState, useEffect, useCallback } from 'react';
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
+  // ✅ Load user and determine cart key (user or guest)
+  const getUser = () => {
+    try {
+      return JSON.parse(localStorage.getItem('user'));
+    } catch {
+      return null;
+    }
+  };
+
+  const getCartKey = () => {
+    const user = getUser();
+    return user ? `${user.id}_cart` : 'guest_cart';
+  };
+
+  // ✅ Initialize cart from localStorage
   const [cart, setCart] = useState(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const savedCart = localStorage.getItem(`${user?.id}_cart`);
-    return savedCart ? JSON.parse(savedCart) : []; // Return saved cart if available
+    const savedCart = localStorage.getItem(getCartKey());
+    return savedCart ? JSON.parse(savedCart) : [];
   });
 
   const [cartCount, setCartCount] = useState(0);
 
-  // Wrap updateCartCount with useCallback to prevent unnecessary re-renders
+  // ✅ Update cart count using useCallback
   const updateCartCount = useCallback(() => {
     setCartCount(cart.reduce((total, item) => total + item.quantity, 0));
-  }, [cart]); // Only re-run the function when cart changes
+  }, [cart]);
 
+  // ✅ Save cart to localStorage whenever it changes
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      localStorage.setItem(`${user.id}_cart`, JSON.stringify(cart)); // Save cart to localStorage
-      console.log('Cart saved to localStorage for user:', user.id);
-    }
-    updateCartCount(); // Update cart count whenever cart changes
-  }, [cart, updateCartCount]); // Depend on cart and updateCartCount
+    localStorage.setItem(getCartKey(), JSON.stringify(cart));
+    console.log('Cart saved to localStorage with key:', getCartKey());
+    updateCartCount();
+  }, [cart, updateCartCount]);
 
-  const addToCart = (product, quantity = 1) => { // 🚀 Removed extra parameters
+  // ✅ Add product to cart (check for size/edition match)
+  const addToCart = (product, quantity = 1) => {
     setCart((prevCart) => {
       const existingProduct = prevCart.find(
         (item) =>
           item.id === product.id &&
-          item.size === product.size && // ✅ Compare using product.size
-          item.edition === product.edition // ✅ Compare using product.edition
+          item.size === product.size &&
+          item.edition === product.edition
       );
-  
+
       if (existingProduct) {
         return prevCart.map((item) =>
-          item.id === product.id && item.size === product.size && item.edition === product.edition
+          item.id === product.id &&
+          item.size === product.size &&
+          item.edition === product.edition
             ? { ...item, quantity: item.quantity + quantity }
             : item
         );
@@ -45,22 +60,31 @@ export const CartProvider = ({ children }) => {
       }
     });
   };
-  useEffect(() => {
-    console.log("Updated Cart:", cart);
-  }, [cart]);
-    
 
+  // ✅ Restore cart on mount if lost due to reload
+  useEffect(() => {
+    if (!cart || cart.length === 0) {
+      const storedCart = localStorage.getItem(getCartKey());
+      if (storedCart) {
+        setCart(JSON.parse(storedCart));
+        console.log('Restored cart from localStorage');
+      }
+    }
+  }, []); // Only run once on mount
+
+  // ✅ Remove product from cart
   const removeFromCart = (productId) => {
     setCart((prevCart) => prevCart.filter((item) => item.id !== productId));
   };
 
+  // ✅ Update quantity for a cart item
   const updateQuantity = (id, newQuantity) => {
-    setCart((cart) =>
-      cart
+    setCart((prevCart) =>
+      prevCart
         .map((item) =>
           item.id === id ? { ...item, quantity: Math.max(0, newQuantity) } : item
         )
-        .filter((item) => item.quantity > 0) // Removes items with 0 quantity
+        .filter((item) => item.quantity > 0)
     );
   };
 

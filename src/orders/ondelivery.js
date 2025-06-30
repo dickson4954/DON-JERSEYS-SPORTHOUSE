@@ -66,56 +66,44 @@ export default function Ondelivery() {
       total_price: totalPrice,
     };
   
-    try {
-      const response = await fetch("https://donjerseysporthouseco.co.ke/backend/api/products/orders", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
-  
-      const rawResponse = await response.text();
-      const data = JSON.parse(rawResponse);
-  
-      if (!response.ok) {
-        throw new Error(`Server Error: ${response.status} ${response.statusText}`);
-      }
-  
-      if (data.success) {
-        setOrderStatus("success");
-  
-       
-        Swal.fire({
-          icon: 'success',
-          title: 'Order placed!',
-          text: 'Your order will arrive in 1 business day. Payment will be collected upon delivery.',
-          confirmButtonText: 'OK',
-          timer: 9000,
-        });
-  
-        setFormData({
-          physicalAddress: "",
-          phoneNumber: "",
-          region: "",
-          name: "",
-        });
-        setCart([]);
-      } else {
-        setOrderStatus("failed");
-        throw new Error(data.message || "Failed to place order.");
-      }
-    } catch (error) {
-      console.error("Error placing order:", error);
-      setOrderStatus("error");
-  
-      Swal.fire({
-        icon: 'error',
-        title: 'An error occurred',
-        text: `Error: ${error.message}`,
-        confirmButtonText: 'OK',
-      });
-    } finally {
+   try {
+  const response = await fetch("https://donjerseysporthouseco.co.ke/backend/api/products/orders", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(orderData),
+  });
+
+  const rawResponse = await response.text();
+  console.log("Raw response:", rawResponse); // ✅ See what the server sent back
+
+  let data;
+  try {
+    data = JSON.parse(rawResponse); // This will fail if rawResponse is HTML
+  } catch (jsonError) {
+    throw new Error("Invalid JSON returned from server:\n" + rawResponse);
+  }
+
+  if (!response.ok) {
+    throw new Error(`Server Error: ${response.status} ${response.statusText}`);
+  }
+
+  if (data.success) {
+    // ... success logic ...
+  } else {
+    throw new Error(data.message || "Failed to place order.");
+  }
+} catch (error) {
+  console.error("Error placing order:", error);
+  Swal.fire({
+    icon: 'error',
+    title: 'An error occurred',
+    text: `Error: ${error.message}`,
+    confirmButtonText: 'OK',
+  });
+}
+ finally {
       setLoading(false);
     }
   };
