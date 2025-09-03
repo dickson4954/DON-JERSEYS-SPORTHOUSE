@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <!-- Homepage -->
+  <url>
+    <loc>https://donjerseysporthouseco.co.ke/</loc>
+    <lastmod>2025-09-01</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Example sub-pages (add when available) -->
+  <url>
+    <loc>https://donjerseysporthouseco.co.ke/shop</loc>
+    <lastmod>2025-09-01</lastmod>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://donjerseysporthouseco.co.ke/about</loc>
+    <lastmod>2025-09-01</lastmod>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://donjerseysporthouseco.co.ke/contact</loc>
+    <lastmod>2025-09-01</lastmod>
+    <priority>0.7</priority>
+  </url>
+
+</urlset>
